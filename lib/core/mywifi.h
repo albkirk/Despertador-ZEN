@@ -10,6 +10,7 @@ extern "C" {
 */
 
 //#include <ESP8266WiFi.h>
+#include <ArduinoJson.h>
 //#include <functions.h>
 
 
@@ -18,6 +19,7 @@ extern "C" {
 #define MINRSSI -70                             // Min RSSI to add the device in the list
 #define MAXDEVICES 100
 #define JBUFFER 15 + (MAXDEVICES * 40)
+#define ARDUINOJSON_ENABLE_ARDUINO_STRING 1
 
 
 // WiFi and Sniffer VARIABLEs

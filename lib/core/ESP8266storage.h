@@ -1,6 +1,8 @@
 #include <EEPROM.h>
 #define EEPROMZize 2048
 
+String STOR_FLAG = "ABC";
+
 //
 //  Create data Struct that will be store on RTC memmory
 //
@@ -13,49 +15,6 @@ struct {
 //
 //  AUXILIAR functions to handle EEPROM
 //
-void EEPROMWritelong(int address, long value) {
-  byte four = (value & 0xFF);
-  byte three = ((value >> 8) & 0xFF);
-  byte two = ((value >> 16) & 0xFF);
-  byte one = ((value >> 24) & 0xFF);
-
-  //Write the 4 bytes into the eeprom memory.
-  EEPROM.write(address, four);
-  EEPROM.write(address + 1, three);
-  EEPROM.write(address + 2, two);
-  EEPROM.write(address + 3, one);
-}
-
-long EEPROMReadlong(long address) {
-  //Read the 4 bytes from the eeprom memory.
-  long four = EEPROM.read(address);
-  long three = EEPROM.read(address + 1);
-  long two = EEPROM.read(address + 2);
-  long one = EEPROM.read(address + 3);
-
-  //Return the recomposed long by using bitshift.
-  return ((four << 0) & 0xFF) + ((three << 8) & 0xFFFF) + ((two << 16) & 0xFFFFFF) + ((one << 24) & 0xFFFFFFFF);
-}
-
-void loadStruct(void *data_dest, size_t size)
-{
-    for(size_t i = 0; i < size; i++)
-    {
-        char data = EEPROM.read(i + 15);
-        ((char *)data_dest)[i] = data;
-    }
-}
-
-void storeStruct(void *data_source, size_t size)
-{
-  for(size_t i = 0; i < size; i++)
-  {
-    char data = ((char *)data_source)[i];
-    EEPROM.write(i + 15, data);
-  }
-  EEPROM.commit();
-}
-
 
 void storage_print() {
 
@@ -79,18 +38,17 @@ void storage_print() {
 }
 
 
-
 boolean storage_read() {
     Serial.println("Reading Configuration");
-    if (EEPROM.read(0) == 'C' && EEPROM.read(1) == 'F'  && EEPROM.read(2) == 'G' && EEPROMReadlong(3) > 2) {
+    EEPROM.get(0, STOR_FLAG);
+    if (STOR_FLAG == "CFG") {
         Serial.println("Configurarion Found!");
-        loadStruct(&config, EEPROMReadlong(3));
+        EEPROM.get(16, config);
         return true;
     }
     else {
         Serial.println("Configurarion NOT FOUND!!!!");
-        Serial.println("Value of 0,1,2: " + String(EEPROM.read(0)) + String(EEPROM.read(1)) + String(EEPROM.read(2)));
-        Serial.println("Value of 3: " + String(EEPROMReadlong(3)));
+        Serial.println("Storage FLAG: " + STOR_FLAG);
         return false;
     }
 }
@@ -98,29 +56,20 @@ boolean storage_read() {
 
 void storage_write() {
   Serial.println("Writing Config");
-  EEPROM.write(0, 'C');
-  EEPROM.write(1, 'F');
-  EEPROM.write(2, 'G');
-  EEPROMWritelong(3, sizeof(config));
-  Serial.println("Value of 3 WRITE: " + String(sizeof(config)));
-
-  storeStruct(&config, sizeof(config));
-  Serial.println("Value of 0,1,2 READ: " + String(EEPROM.read(0)) + String(EEPROM.read(1)) + String(EEPROM.read(2)));
-  Serial.println("Value of 3 READ: " + String(EEPROMReadlong(3)));
+  STOR_FLAG = "CFG";
+  EEPROM.put(0, STOR_FLAG);
+  EEPROM.put(16, config);
+  EEPROM.commit();
 }
 
 
 void storage_reset() {
+
   Serial.println("Reseting Config");
-  EEPROM.write(0, 'R');
-  EEPROM.write(1, 'S');
-  EEPROM.write(2, 'T');
-  for (size_t i = 3; i < (EEPROMZize-1); i++) {
-      EEPROM.write(i, 0);
-  }
+  STOR_FLAG = "RST";
+  EEPROM.put(0, STOR_FLAG);
   EEPROM.commit();
 }
-
 
 void storage_setup() {
     bool CFG_saved = false;

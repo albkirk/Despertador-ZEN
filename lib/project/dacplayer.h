@@ -76,7 +76,7 @@ void player_music(const uint8_t* music_data, int sample_rate=22500) {
 }
 
 void player_setup() {
-    player_beep(3);
+    //player_beep(3);
     //player_music(startup_sound, 22500);
 
 }

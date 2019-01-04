@@ -160,7 +160,6 @@ float getHumidity() {
 return -1;
 }
 
-
 void ESPBoot() {
   Serial.println("Booting in 3 seconds...");
   delay(3000);
@@ -182,25 +181,29 @@ void FormatConfig() {                                 // WARNING!! To be used on
 */
 
 void blink_LED(int slot) {                            // slot range 1 to 10 =>> 3000/300
-    now_millis = millis() % Pace_millis;
-    if (now_millis > LED_millis*(slot-1) && now_millis < LED_millis*slot-LED_millis/2 ) {
-        digitalWrite(LED_esp, boolean(config.LED));   // toggles LED status. will be restored by command above
-        delay(LED_millis/2);
+    if (LED_esp>=0) {
+        now_millis = millis() % Pace_millis;
+        if (now_millis > LED_millis*(slot-1) && now_millis < LED_millis*slot-LED_millis/2 ) {
+            digitalWrite(LED_esp, boolean(config.LED));   // toggles LED status. will be restored by command above
+            delay(LED_millis/2);
+        }
     }
 }
 
-void flash_LED(unsigned int n_flash) {                // number of flash 1 to 6 =>> 3000/500
-    for (size_t i = 0; i < n_flash; i++) {
-      digitalWrite(LED_esp, boolean(config.LED));     // Turn LED on
-      delay(LED_millis/3);
-      digitalWrite(LED_esp, boolean(!config.LED));    // Turn LED off
-      delay(LED_millis/3);
+void flash_LED(unsigned int n_flash = 1) {                // number of flash 1 to 6 =>> 3000/500
+    if (LED_esp>=0) {
+        for (size_t i = 0; i < n_flash; i++) {
+            digitalWrite(LED_esp, boolean(config.LED));     // Turn LED on
+            delay(LED_millis/3);
+            digitalWrite(LED_esp, boolean(!config.LED));    // Turn LED off
+            delay(LED_millis/3);
+        }
     }
 }
 
-void Buzz(unsigned int n_beeps) {                     // number of beeps 1 to 6 =>> 3000/500
+void Buzz(unsigned int n_beeps = 1) {                     // number of beeps 1 to 6 =>> 3000/500
     if (BUZZER>=0) {
-          for (size_t i = 0; i < n_beeps; i++) {
+        for (size_t i = 0; i < n_beeps; i++) {
             digitalWrite(BUZZER, HIGH);               // Turn Buzzer on
             delay(BUZZER_millis/6);
             digitalWrite(BUZZER, LOW);                // Turn Buzzer off

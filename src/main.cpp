@@ -16,7 +16,7 @@
 // HARWARE & SOFTWARE Version
 #define BRANDName "AlBros_Team"                         // Hardware brand name
 #define MODELName "ZENClock"                            // Hardware model name
-#define SWVer "01.01"                                   // Major.Minor Software version (use String 01.00 - 99.99 format !)
+#define SWVer "01.02"                                   // Major.Minor Software version (use String 01.00 - 99.99 format !)
 
 // Battery & ESP Voltage
 #define BattPowered true                                // Is the device battery powered?
@@ -90,7 +90,7 @@ void config_defaults() {
     config.SLEEPTime = 0;                                 // 0-255 minutes (Byte range)
     config.DEEPSLEEP = false;                             // 0 - Disabled, 1 - Enabled
     config.LED = true;                                    // 0 - OFF, 1 - ON
-    config.TELNET = true;                                 // 0 - Disabled, 1 - Enabled
+    config.TELNET = false;                                // 0 - Disabled, 1 - Enabled
     config.OTA = true;                                    // 0 - Disabled, 1 - Enabled
     config.WEB = false;                                   // 0 - Disabled, 1 - Enabled
     config.Remote_Allow = true;                           // 0 - Not Allow, 1 - Allow remote operation
@@ -119,7 +119,6 @@ void config_defaults() {
     config.Volume = 100;      // Speaker volume [0-100%].
     config.Alarm_State = false;                           // Alarm state (true -> Ring / False -> Not Ring)
     config.AlarmDateTime = {0, 1, 0, 0, 0, 0, 7, true, 1};// Alarm DateTime structure
-
 }
 
 

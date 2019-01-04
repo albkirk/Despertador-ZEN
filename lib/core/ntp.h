@@ -12,7 +12,7 @@ struct strDateTime
   byte month;
   byte day;
   byte wday;
-}
+};
 #endif
 
 strDateTime DateTime;                         // Global DateTime structure
