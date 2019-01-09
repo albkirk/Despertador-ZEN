@@ -15,7 +15,7 @@
 
 // HARWARE & SOFTWARE Version
 #define BRANDName "AlBros_Team"                         // Hardware brand name
-#define MODELName "ZENClock"                            // Hardware model name
+#define MODELName "ZENDesperta"                         // Hardware model name
 #define SWVer "01.02"                                   // Major.Minor Software version (use String 01.00 - 99.99 format !)
 
 // Battery & ESP Voltage
@@ -74,6 +74,7 @@ struct strConfig {
   String UPDATE_User;
   String UPDATE_Password;
   long Temp_Corr;
+  char InitColor[10];
   byte Volume;
   bool Alarm_State;
   strDateTime AlarmDateTime;
@@ -83,13 +84,13 @@ struct strConfig {
 void config_defaults() {
     Serial.println("Setting config Default values");
 
-    config.DeviceName = String("Despertador");            // Device Name
+    config.DeviceName = String("ZENDesperta");            // Device Name
     config.Location = String("Suite");                    // Device Location
     config.ClientID = String("001001");                   // Client ID (used on MQTT)
     config.ONTime = 60;                                   // 0-255 seconds (Byte range)
     config.SLEEPTime = 0;                                 // 0-255 minutes (Byte range)
     config.DEEPSLEEP = false;                             // 0 - Disabled, 1 - Enabled
-    config.LED = true;                                    // 0 - OFF, 1 - ON
+    config.LED = false;                                   // 0 - OFF, 1 - ON
     config.TELNET = false;                                // 0 - Disabled, 1 - Enabled
     config.OTA = true;                                    // 0 - Disabled, 1 - Enabled
     config.WEB = false;                                   // 0 - Disabled, 1 - Enabled
@@ -116,10 +117,21 @@ void config_defaults() {
     config.UPDATE_User = String("user");                  // UPDATE Server username
     config.UPDATE_Password = String("1q2w3e4r");          // UPDATE Server password
     config.Temp_Corr = 0;     // Sensor Temperature Correction Factor, typically due to electronic self heat.
+    strcpy(config.InitColor, "#EEEEEEFF");                // RGB Initial color (when powering ON)
     config.Volume = 100;      // Speaker volume [0-100%].
     config.Alarm_State = false;                           // Alarm state (true -> Ring / False -> Not Ring)
     config.AlarmDateTime = {0, 1, 0, 0, 0, 0, 7, true, 1};// Alarm DateTime structure
 }
+
+// Create Global COLOR related variables
+    char Color[10]     = "#00000000"; // RGB Color code. syntax: '#' + RED + GREEN + BLUE + Transparency
+    char LastColor[10] = "#00000000"; // each param use 2 CHARs and range from 0 to FF (HEX format of 0-255).
+                                      // Transparency is ignored. It's kept only for compatibility purposes.
+                                      //  - - -  NeoPixels  - - -
+// Which pin on the ESP32 is connected to the NeoPixels?
+#define NEOPixelsPIN  18
+// How many NeoPixels LEDs are attached to the ESP32?
+#define NEOPixelsNUM  8
 
 
 #include <storage.h>
@@ -134,12 +146,14 @@ void config_defaults() {
 
 
 // **** Normal code definition here ...
+
 #include <sounds.h>
-#define rotate 1
+#define  TFTRotate 1
 #include <tft.h>
-#include <buttons.h>
 #include <dacplayer.h>
+#include <color.h>
 #include <menu.h>
+
 
 // **** Normal code functions here ...
 
@@ -190,15 +204,16 @@ void setup() {
   // Start TFT device
       tft_setup();
 
-  // Start Buttons device
-      buttons_setup();
+  // Start Player device
+      config.Volume = 50;
+      player_setup();
+
+  // Color Managament Service
+      color_setup();
 
   // Start MENU
       menu_setup();
 
-  // Start Player device
-      config.Volume = 50;
-      player_setup();
 
 
   // Last bit of code before leave setup
@@ -238,10 +253,14 @@ void loop() {
 
   // **** Normal LOOP Skecth code here ...
 
+  // Player handling
+      player_loop();
+
+  // Color handling
+      color_loop();
+
   // MENU handling
       menu_loop();
 
-  // Player handling
-      player_loop();
 
 }  // end of loop()

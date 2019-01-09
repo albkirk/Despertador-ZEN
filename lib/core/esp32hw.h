@@ -1,5 +1,9 @@
 #include <DHT.h>
 
+#include <buttons.h>
+#define setup_Buttons true
+
+
 uint32_t getChipId() {
   uint8_t chipid[6];
   uint32_t output = 0;
@@ -184,24 +188,24 @@ void blink_LED(int slot) {                            // slot range 1 to 10 =>> 
     if (LED_esp>=0) {
         now_millis = millis() % Pace_millis;
         if (now_millis > LED_millis*(slot-1) && now_millis < LED_millis*slot-LED_millis/2 ) {
-            digitalWrite(LED_esp, boolean(config.LED));   // toggles LED status. will be restored by command above
+            digitalWrite(LED_esp, boolean(!config.LED));   // toggles LED status. will be restored by command above
             delay(LED_millis/2);
         }
     }
 }
 
-void flash_LED(unsigned int n_flash = 1) {                // number of flash 1 to 6 =>> 3000/500
+void flash_LED(unsigned int n_flash = 1) {
     if (LED_esp>=0) {
         for (size_t i = 0; i < n_flash; i++) {
-            digitalWrite(LED_esp, boolean(config.LED));     // Turn LED on
+            digitalWrite(LED_esp, boolean(!config.LED));     // Turn LED on
             delay(LED_millis/3);
-            digitalWrite(LED_esp, boolean(!config.LED));    // Turn LED off
+            digitalWrite(LED_esp, boolean(config.LED));      // Turn LED off
             delay(LED_millis/3);
         }
     }
 }
 
-void Buzz(unsigned int n_beeps = 1) {                     // number of beeps 1 to 6 =>> 3000/500
+void Buzz(unsigned int n_beeps = 1) {
     if (BUZZER>=0) {
         for (size_t i = 0; i < n_beeps; i++) {
             digitalWrite(BUZZER, HIGH);               // Turn Buzzer on
@@ -223,6 +227,7 @@ void hw_setup() {
 
   // Start DHT device
       if (DHTPIN>=0) dht_val.begin();
+      if (setup_Buttons) buttons_setup();                 // Start Buttons call precedures
 }
 
 void hw_loop() {

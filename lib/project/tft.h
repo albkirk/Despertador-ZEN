@@ -224,6 +224,7 @@ void tft_drawsound(strDateTime strDtTm=DateTime, uint16_t color=MainColor, int x
 void tft_drawbell(strDateTime strDtTm=DateTime, uint16_t color=MainColor, int x=2, int y=56) {
       tft.drawBitmap(x + 104, y, bell, 16, 16, color);
       if (!strDtTm.alarm) {
+          if (color != BGColor) color = color - 0x841;
           tft.drawLine(x + 104, y, x + 104 + 16, y + 16, color);
           tft.drawLine(x + 104, y + 16, x + 104 + 16, y, color);
       };
@@ -310,7 +311,7 @@ void tft_setup() {
     tft.fillScreen(ST7735_BLACK);
     deltatime = millis() - deltatime;
 
-    tft.setRotation(rotate);
+    tft.setRotation(TFTRotate);
     /*
     tft.setTextColor(ST7735_RED);
     tft.setTextSize(0);

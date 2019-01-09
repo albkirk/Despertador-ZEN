@@ -1,11 +1,17 @@
 
 //  - - -  Constants
-static const String menu[] = {"Clock", "Alarm", "Sounds", "Lights", "Shades", "System"};
+static const String menu_main[] = {"Clock", "Alarm", "ZEN", "Shades", "System"};
+static const String menu_zen[] =    {"Florest",     "Beach",    "Night",     "Raibow",    "Sunset"};
+static const String menu_sounds[] = {"Birds",       "Ocean",    "Crickets",  "Xilophone", "Waterfall"};
+static const String menu_lights[] = {"LIGHT_GREEN", "SKY_BLUE", "DEEP_BLUE", "PURPLE",    "ORANGE"};
+
+// static const String SYSmenu[] = {"Sounds", "Lights", "IoT"};
+// static const String menu[] = {"Clock", "Alarm", "Sounds", "Lights", "Shades", "System"};
 
 
 //  - - -  Variables  - - -
 byte MENU = 0;
-byte Last_MENU = (sizeof(menu)/sizeof(*menu));
+byte Last_MENU = (sizeof(menu_main)/sizeof(*menu_main));
 unsigned long MENU_LastTime = 0;              // Last MENU selection time stamp
 unsigned int Backto_MENU = 120;               // Timeout to return to Main (clock) Menu
 bool Menu_Next = false;                       // Aux flag to jumo to next menu
@@ -13,7 +19,9 @@ bool Menu_1stRun = false;                     // Aux flag to run a pice of code 
 int delta = 0;                                // Aux var with the value to be added. Used on functions: set_alarm(),...
 
 //  - - - AUX libraries
-#include <menu_alarm.h>
+#include <mn_alarm.h>
+#include <mn_zen.h>
+#include <mn_lights.h>
 
 //  - - -  Functions  - - -
 void loop_icons() {
@@ -37,8 +45,8 @@ void loop_icons() {
 
 void loop_clock() {
    if(A_COUNT == 1 && !A_STATUS && (millis() - last_A > 6 * interval)) {
-        MENU = (MENU + 1)%(sizeof(menu)/sizeof(*menu));
-        //telnet_println("Menu: " + menu[MENU]);
+        MENU = (MENU + 1)%(sizeof(menu_main)/sizeof(*menu_main));
+        //telnet_println("Menu: " + menu_main[MENU]);
         A_COUNT = 0;
     }
     if (((millis() - RefMillis)%1000) < 20) {
@@ -50,11 +58,6 @@ void loop_clock() {
 
 
 
-void loop_sounds() {
-}
-
-void loop_lights() {
-}
 
 void loop_shades() {
 }
@@ -68,56 +71,65 @@ void menu_setup() {
 }
 
 void menu_loop() {
-
     // MENU handling
     if (Last_MENU != MENU) {
-        switch(Last_MENU) {
-            case 0:
+        switch(Last_MENU) {   // actions to execute before Leaving the current menu. typically, to clean the screen...
+            case 0:     // Clock
                 tft_drawtime(LastDateTime, BGColor);  // Clear clock
                 tft_drawdate(LastDateTime, BGColor);  // Clear date
                 break;
-            case 1:
+            case 1:     // Alarm
                 tft_drawalarm(config.AlarmDateTime, BGColor);
                 break;
+            case 2:     // ZEN
+                break;
+            case 3:     // Lights
+                for (size_t i = 0; i < NEOPixelsNUM; i++) NEOcolor_set (BLACK, i);
+                break;
         }
-        switch(MENU) {
-            case 0:
+        switch(MENU) {  // actions to execute whenn moving to current menu. typically, draw the full image.
+            case 0:     // Clock
                 curDateTime();
                 tft_drawtime(DateTime, MainColor);
                 tft_drawdate(DateTime, MainColor);
                 LastDateTime = DateTime;
                 break;
-            case 1:
+            case 1:     // Alarm
                 tft_drawalarm(config.AlarmDateTime, MainColor);
                 break;
+            case 3:     // Lights
+                for (size_t i = 0; i < NEOPixelsNUM; i++) NEOcolor_set (BLACK, i);
+                break;
         }
-        //telnet_print("Last Menu: " + menu[Last_MENU]);
-        //telnet_println("\tCurrent Menu: " + menu[MENU]);
-        tft_text(menu[Last_MENU], BGColor, 1, Last_MENU * 18, 18);  // Clear Menu
-        tft_text(menu[MENU], MainColor, 1, MENU * 18, 18);          // write Menu
+        //telnet_print("Last Menu: " + menu_main[Last_MENU]);
+        //telnet_println("\tCurrent Menu: " + menu_main[MENU]);
+        tft_text(menu_main[Last_MENU], BGColor, 1, Last_MENU * 18, 20);  // Clear Menu
+        tft_text(menu_main[MENU], MainColor, 1, MENU * 18, 20);          // write Menu
         Last_MENU = MENU;
         MENU_LastTime = millis();
     }
     // Timeout to clear sub-menu flags and return to Main (clock) Menu
+
     if ( millis() - MENU_LastTime > (Backto_MENU * 1000)) {
         Alarm_Set = false;
         MENU = 0;
     }
 
     switch(MENU) {
-        case 0:
+        case 0:     // Clock
                 loop_clock();
                 break;
-        case 1:
+        case 1:     // alarm
                 loop_alarm();
                 break;
-        /*
+
         case 2:
-                loop_sounds();
+                loop_zen();
                 break;
         case 3:
                 loop_lights();
                 break;
+        /*
         case 4:
                 loop_shades();
                 break;
@@ -127,8 +139,8 @@ void menu_loop() {
         */
         default :
                 if(A_COUNT == 1 && !A_STATUS && (millis() - last_A > 6 * interval)) {
-                    MENU = (MENU + 1)%(sizeof(menu)/sizeof(*menu));
-                    telnet_println("Menu: " + menu[MENU]);
+                    MENU = (MENU + 1)%(sizeof(menu_main)/sizeof(*menu_main));
+                    telnet_println("Menu: " + menu_main[MENU]);
                     A_COUNT = 0;
             }
     }

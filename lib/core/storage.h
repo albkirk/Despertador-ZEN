@@ -1,3 +1,9 @@
+/*
+## Store any struct in flash ##
+ Kudos for this author: Robert Duality4Y [GitHub]
+ https://github.com/esp8266/Arduino/issues/1539
+*/
+
 #include <EEPROM.h>
 #define EEPROMZize 2048
 
@@ -102,11 +108,11 @@ void storage_write() {
   EEPROM.write(1, 'F');
   EEPROM.write(2, 'G');
   EEPROMWritelong(3, sizeof(config));
-  Serial.println("Value of 3 WRITE: " + String(sizeof(config)));
+  //Serial.println("Value of 3 WRITE: " + String(sizeof(config)));
 
   storeStruct(&config, sizeof(config));
-  Serial.println("Value of 0,1,2 READ: " + String(EEPROM.read(0)) + String(EEPROM.read(1)) + String(EEPROM.read(2)));
-  Serial.println("Value of 3 READ: " + String(EEPROMReadlong(3)));
+  //Serial.println("Value of 0,1,2 READ: " + String(EEPROM.read(0)) + String(EEPROM.read(1)) + String(EEPROM.read(2)));
+  //Serial.println("Value of 3 READ: " + String(EEPROMReadlong(3)));
 }
 
 
