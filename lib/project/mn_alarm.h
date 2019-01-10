@@ -8,13 +8,7 @@ byte Alarm_Set_index = 0;                     // Alarm item index to set (hour, 
 void alarm_ring(strDateTime stralrDtTm=config.AlarmDateTime, strDateTime strDtTm=DateTime) {
   if (stralrDtTm.alarm == true && strDtTm.second <=1 && stralrDtTm.hour == strDtTm.hour && stralrDtTm.minute == strDtTm.minute) {
       if (stralrDtTm.wday == 7 || (stralrDtTm.wday == 8 && strDtTm.wday >= 2 &&  strDtTm.wday <= 6) || (stralrDtTm.wday == 9 && strDtTm.wday <=1) || stralrDtTm.wday == strDtTm.wday) {
-            switch (stralrDtTm.sound) {
-                  case 0 :
-                      player_music(startup_sound);
-                      break;
-                  default :
-                      player_beep(10);
-            }
+            player_play(stralrDtTm.sound);
         }
   }
 }
@@ -120,21 +114,21 @@ void set_alarm() {
                 break;
             case 4:       // edit Sound
                 if (delta !=0) {
-                    tft_drawsound(config.AlarmDateTime, BGColor);
+                    tft_drawsound(config.AlarmDateTime.sound, BGColor);
                     config.AlarmDateTime.sound = (config.AlarmDateTime.sound + delta)%(sizeof(sounds)/sizeof(*sounds));;
-                    tft_drawsound(config.AlarmDateTime, EditColor);
+                    tft_drawsound(config.AlarmDateTime.sound, EditColor);
                     delta = 0;
                     break;
                 }
                 if (Menu_Next) {
-                    tft_drawsound(config.AlarmDateTime, SetColor);
+                    tft_drawsound(config.AlarmDateTime.sound, SetColor);
                     Menu_Next = false;
                     Menu_1stRun = true;
                     Alarm_Set_index ++;
                     break;
                 }
                 if (Menu_1stRun) {
-                    tft_drawsound(config.AlarmDateTime, EditColor);
+                    tft_drawsound(config.AlarmDateTime.sound, EditColor);
                     Menu_1stRun = false;
                 }
                 break;
@@ -170,6 +164,10 @@ void loop_alarm() {
         if(A_COUNT == 1 && !A_STATUS && (millis() - last_A > 6 * interval)) {
             MENU = (MENU + 1)%(sizeof(menu_main)/sizeof(*menu_main));
             telnet_println("Menu: " + menu_main[MENU]);
+            A_COUNT = 0;
+        }
+        if(A_COUNT == 2 && !A_STATUS && (millis() - last_A > 6 * interval)) {
+            MENU = 0;
             A_COUNT = 0;
         }
         if(C_COUNT == 1 && C_STATUS && (millis() - last_C > 6 * interval)) {

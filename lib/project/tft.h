@@ -3,7 +3,6 @@
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_ST7735.h> // Hardware-specific library
 #include <SPI.h>
-#include <images.h>
 
 // TFT PINOUT
 #define TFT_BACKLIGHT  7  // Display backlight pin (NOT CONFIRMED!!!)
@@ -20,6 +19,7 @@ uint16_t BGColor=ST7735_BLACK;
 uint16_t SetColor=ST7735_YELLOW;
 uint16_t EditColor=ST7735_ORANGE;
 
+/*
 void testlines(uint16_t color) {
   tft.fillScreen(BGColor);
   for (int16_t x=0; x < tft.width(); x+=6) {
@@ -52,14 +52,6 @@ void testlines(uint16_t color) {
   for (int16_t y=0; y < tft.height(); y+=6) {
     tft.drawLine(tft.width()-1, tft.height()-1, 0, y, color);
   }
-}
-
-void tft_text(String text, int color=ST7735_WHITE, uint8_t s=1, int x=0, int y=0, bool wraptext=true) {
-  tft.setCursor(x, y);
-  tft.setTextColor(color);
-  tft.setTextSize(s);
-  tft.setTextWrap(wraptext);
-  tft.print(text);
 }
 
 void tft_pixel(int x=0, int y=0, int color=ST7735_WHITE) {
@@ -166,6 +158,15 @@ void mediabuttons() {
   // play color
   tft.fillTriangle(42, 20, 42, 60, 90, 40, ST7735_GREEN);
 }
+*/
+
+void tft_text(String text, int color=ST7735_WHITE, uint8_t s=1, int x=0, int y=0, bool wraptext=true) {
+  tft.setCursor(x, y);
+  tft.setTextColor(color);
+  tft.setTextSize(s);
+  tft.setTextWrap(wraptext);
+  tft.print(text);
+}
 
 void tft_drawhour(strDateTime strDtTm=DateTime, uint16_t color=MainColor, int x=2, int y=56) {
       String text="";
@@ -215,28 +216,51 @@ void tft_drawwday(strDateTime strDtTm=DateTime, uint16_t color=MainColor, int x=
       tft_text(text,        color, 2, x,      y);
 }
 
-void tft_drawsound(strDateTime strDtTm=DateTime, uint16_t color=MainColor, int x=7, int y=34) {
+void tft_drawsound(byte strDtTm_sound = 0, uint16_t color=MainColor, int x=7, int y=34) {
       String text="";
-      text = sounds[strDtTm.sound];
+      text = sounds[strDtTm_sound];
       tft_text(text,        color, 2, x,      y);
 }
 
+void tft_drawvolume(byte volbar = config.Volume, uint16_t color=MainColor, int x=14, int y=98) {
+      tft.drawRect(x-2, y-2, 104, 10, color);
+      tft.fillRect(x, y, volbar, 6, color);
+      }
+
+void tft_drawEFX(byte EFXid = 0, uint16_t color=MainColor, int x=7, int y=34) {
+      String text="";
+      text = EFXName[EFXid];
+      tft_text(text,        color, 2, x,      y);
+}
+void tft_drawprevious(uint16_t color=MainColor, int x=10, int y=56) {
+      tft.drawBitmap(x     , y, previous_icon, 32, 32, color);
+}
+
+void tft_drawplay(byte pps = 0, uint16_t color=MainColor, int x=10, int y=56) {
+    switch (pps) {
+        case 0:
+            tft.drawBitmap(x + 38, y, play_icon, 32, 32, color);
+            break;
+        case 1:
+            tft.drawBitmap(x + 38, y, pause_icon, 32, 32, color);
+            break;
+        case 2:
+            tft.drawBitmap(x + 38, y, stop_icon, 32, 32, color);
+            break;
+    }
+}
+
+void tft_drawnext(uint16_t color=MainColor, int x=10, int y=56) {
+      tft.drawBitmap(x + 76, y, next_icon, 32, 32, color);
+}
+
 void tft_drawbell(strDateTime strDtTm=DateTime, uint16_t color=MainColor, int x=2, int y=56) {
-      tft.drawBitmap(x + 104, y, bell, 16, 16, color);
+      tft.drawBitmap(x + 104, y, bell_icon, 16, 16, color);
       if (!strDtTm.alarm) {
-          if (color != BGColor) color = color - 0x841;
+          //if (color != BGColor) color = color - 0x841;
           tft.drawLine(x + 104, y, x + 104 + 16, y + 16, color);
           tft.drawLine(x + 104, y + 16, x + 104 + 16, y, color);
       };
-}
-
-
-
-void tft_drawtime(strDateTime strDtTm=DateTime, uint16_t color=MainColor, int x=2, int y=56) {
-    tft_drawhour(strDtTm, color, x, y);
-    tft_text(String(':'), color, 4, x + 40, y);
-    tft_drawmin(strDtTm, color, x, y);
-    tft_drawsec(strDtTm, color, x, y);
 }
 
 void tft_drawalarm(strDateTime strDtTm=DateTime, uint16_t color=MainColor, int x=2, int y=56) {
@@ -245,7 +269,7 @@ void tft_drawalarm(strDateTime strDtTm=DateTime, uint16_t color=MainColor, int x
     tft_drawmin(strDtTm, color, x, y);
     tft_drawwday(strDtTm, color, 7, 105);
     tft_drawbell(strDtTm, color, x, y);
-    tft_drawsound(strDtTm, color, 7, 34);
+    tft_drawsound(strDtTm.sound, color, 7, 34);
 }
 
 void tft_drawdate(strDateTime strDtTm=DateTime, uint16_t color=MainColor, int x=7, int y=105) {
@@ -258,45 +282,6 @@ void tft_drawdate(strDateTime strDtTm=DateTime, uint16_t color=MainColor, int x=
     //tft_drawyear(strDtTm, color, x, y);
 }
 
-void tft_updatetime(uint16_t color=MainColor, uint16_t bgcolor=BGColor, int x=2, int y=56) {
-  //curDateTime();
-  if (LastDateTime.hour != DateTime.hour) {
-      tft_drawhour(LastDateTime, bgcolor, x, y);
-      tft_drawhour(DateTime, color, x, y);
-  }
-  if (LastDateTime.minute != DateTime.minute) {
-      tft_drawmin(LastDateTime, bgcolor, x, y);
-      tft_drawmin(DateTime, color, x, y);
-  }
-  if (LastDateTime.second != DateTime.second) {
-      tft_drawsec(LastDateTime, bgcolor, x, y);
-      tft_drawsec(DateTime, color, x, y);
-  }
-  //LastDateTime = DateTime;
-}
-
-void tft_updatedate(uint16_t color=MainColor, uint16_t bgcolor=BGColor, int x=7, int y=105) {
-      //curDateTime();  //Skipped as tft_drawclock() function should run much more often than this one.
-    if (LastDateTime.wday != DateTime.wday) {
-        tft_drawwday(LastDateTime, bgcolor, x, y);
-        tft_drawwday(DateTime, color, x, y);
-    }
-    if (LastDateTime.day != DateTime.day) {
-        tft_drawday(LastDateTime, bgcolor, x, y);
-        tft_drawday(DateTime, color, x, y);
-    }
-    if (LastDateTime.month != DateTime.month) {
-        tft_drawmonth(LastDateTime, bgcolor, x, y);
-        tft_drawmonth(DateTime, color, x, y);
-    }
-    /*
-    if (LastDateTime.year != DateTime.year) {
-        tft_drawyear(LastDateTime, bgcolor, x, y);
-        tft_drawyear(DateTime, color, x, y);
-    }
-    */
-    //LastDateTime = DateTime;
-}
 
 
 void tft_setup() {
@@ -319,13 +304,6 @@ void tft_setup() {
     tft.println("F Rate: " + String(1000/deltatime));
     delay(5000);
     */
-    //tft.drawBitmap(40,0,user_icon, 15, 15, ST7735_WHITE);
 
-}
 
-void tft_updateclock() {
-        curDateTime();
-        tft_updatetime();
-        tft_updatedate();
-        LastDateTime = DateTime;
 }

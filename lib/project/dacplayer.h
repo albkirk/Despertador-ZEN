@@ -9,7 +9,7 @@
 
 
 //  - - -  Variables  - - -
-byte last_Vol=8;
+byte last_Volume = 0;
 byte min_ampl=0;        // Max is 8 bits - 1 Byte
 byte max_ampl=255;      // Max is 8 bits - 1 Byte
 
@@ -52,7 +52,6 @@ void player_tone(float freq, float tempo, byte ampl=config.Volume, byte bpm=120,
     size_t t;
     for (t = 0; t < (tempo * 60 / bpm * spl_rate); t++) {
     //for (size_t t = 0; t < 10; t++) {
-        if (player_stop()) break;
         dacWrite(SPEAKER_PIN, ((byte)(ampl * sin(2*pi*freq*t*delay_intv*0.000001))+127));
         //Serial.print(" " + String((ampl * sin(2*pi*freq*t*delay_intv*0.000001))+127));
         delayMicroseconds(delay_intv);
@@ -63,9 +62,11 @@ void player_tone(float freq, float tempo, byte ampl=config.Volume, byte bpm=120,
 
 void player_beep(int ntimes = 2) {
     for (size_t i = 0; i < ntimes; i++) {
+        if (player_stop()) goto stop_player_beep;
         player_tone(A6, 1.0/8);
         player_tone(0, 1.0/4);
     }
+    stop_player_beep:;
 }
 
 void player_music(const uint8_t* music_data, int spl_rate=22500) {
@@ -78,9 +79,44 @@ void player_music(const uint8_t* music_data, int spl_rate=22500) {
             dacWrite(SPEAKER_PIN, (byte)music_data[i]/(config.Volume/100.0));
             delayMicroseconds(delay_interval);
         }
-
         player_fadeout((byte)music_data[i]/(config.Volume/100.0), spl_rate);
-    }
+    };
+}
+
+
+void player_play (byte idx = 0) {
+  // sounds[] = {"Birds", "Ocean", "Crickets", "Xilophone", "Waterfall", "Startup", "WakeUp", "Cucu"};
+  switch (idx) {
+        case 0 :
+            player_beep(1);
+            break;
+        case 1 :
+            player_beep(2);
+            break;
+        case 2 :
+            player_beep(3);
+            break;
+        case 3 :
+            player_beep(4);;
+            break;
+        case 4 :
+            player_beep(5);
+            break;
+        case 5 :
+            player_music(startup_sound);
+            break;
+        case 6 :
+            player_beep(7);
+            break;
+        case 7 :
+            player_beep(8);
+            break;
+        default :
+            player_beep(10);
+  }
+
+
+
 }
 
 void player_setup() {

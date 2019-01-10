@@ -1,63 +1,57 @@
 
 //  - - -  Constants
-static const String menu_main[] = {"Clock", "Alarm", "ZEN", "Shades", "System"};
+//static const String menu_main[] = {"Clock", "Alarm", "ZEN", "Shades", "System"};
+static const String menu_main[] = {"Clock", "Alarm", "Sounds", "Lights", "Shades", "System"};
 static const String menu_zen[] =    {"Florest",     "Beach",    "Night",     "Raibow",    "Sunset"};
-static const String menu_sounds[] = {"Birds",       "Ocean",    "Crickets",  "Xilophone", "Waterfall"};
-static const String menu_lights[] = {"LIGHT_GREEN", "SKY_BLUE", "DEEP_BLUE", "PURPLE",    "ORANGE"};
+//static const String sounds[] = {"Birds",       "Ocean",    "Crickets",  "Xilophone", "Waterfall"};
+static const String lights[] = {"LIGHT_GREEN", "SKY_BLUE", "DEEP_BLUE", "PURPLE",    "ORANGE"};
 
 // static const String SYSmenu[] = {"Sounds", "Lights", "IoT"};
-// static const String menu[] = {"Clock", "Alarm", "Sounds", "Lights", "Shades", "System"};
 
 
 //  - - -  Variables  - - -
 byte MENU = 0;
 byte Last_MENU = (sizeof(menu_main)/sizeof(*menu_main));
-unsigned long MENU_LastTime = 0;              // Last MENU selection time stamp
+uint32_t MENU_LastTime = 0;              // Last MENU selection time stamp
 unsigned int Backto_MENU = 120;               // Timeout to return to Main (clock) Menu
 bool Menu_Next = false;                       // Aux flag to jumo to next menu
 bool Menu_1stRun = false;                     // Aux flag to run a pice of code just once
 int delta = 0;                                // Aux var with the value to be added. Used on functions: set_alarm(),...
 
+byte ZEN = 0;
+byte SOUNDs = 0;
+byte LIGHTs = 0;
+
 //  - - - AUX libraries
 #include <mn_alarm.h>
-#include <mn_zen.h>
+//#include <mn_zen.h>
+#include <mn_sounds.h>
 #include <mn_lights.h>
-
+#include <mn_clock.h>  /// this must be the last one as it calls functions from previous libs
 //  - - -  Functions  - - -
 void loop_icons() {
   //  -- WiFI Icon --
     if ( WIFI_state != Last_WIFI_state ) {
-        if ( WIFI_state == WL_CONNECTED ) tft.drawBitmap(20, 0, wifi_icon, 20, 15, ST7735_WHITE);
-        else tft.drawBitmap(20, 0, wifi_icon, 20, 15, BGColor);
+        if ( WIFI_state == WL_CONNECTED ) tft.drawBitmap(20, 0, wifi_icon, 16, 16, ST7735_WHITE);
+        else tft.drawBitmap(20, 0, wifi_icon, 16, 16, BGColor);
         Last_WIFI_state = WIFI_state;
     };
+    //tft.drawBitmap(20, 0, wifi_OFF_icon, 16, 16, ST7735_GREEN);
+
 
   // -- ALARM Icon --
     if ( config.Alarm_State != Last_Alarm_State ) {
-        if (config.Alarm_State) tft.drawBitmap(0,0,bell,16,16,MainColor);
-        else tft.drawBitmap(0,0,bell,16,16,BGColor);
+        if (config.Alarm_State) tft.drawBitmap(0,0,bell_icon,16,16,MainColor);
+        else tft.drawBitmap(0,0,bell_icon,16,16,BGColor);
         Last_Alarm_State = config.Alarm_State;
     };
 
   // battery Icon
-  //tft.drawBitmap(109,0,battery_icon, 20, 15, ST7735_GREEN);
+  //tft.drawBitmap(48, 4,battery_icon_1_4, 16, 8, ST7735_RED);
+  //tft.drawBitmap(64, 4,battery_icon_2_4, 16, 8, ST7735_YELLOW);
+  //tft.drawBitmap(80, 4,battery_icon_3_4, 16, 8, ST7735_WHITE);
+  tft.drawBitmap(110, 4,battery_icon_4_4, 16, 8, ST7735_WHITE);
 }
-
-void loop_clock() {
-   if(A_COUNT == 1 && !A_STATUS && (millis() - last_A > 6 * interval)) {
-        MENU = (MENU + 1)%(sizeof(menu_main)/sizeof(*menu_main));
-        //telnet_println("Menu: " + menu_main[MENU]);
-        A_COUNT = 0;
-    }
-    if (((millis() - RefMillis)%1000) < 20) {
-        tft_updateclock();
-        if (config.Alarm_State) alarm_ring();
-    }
-}
-
-
-
-
 
 void loop_shades() {
 }
@@ -81,9 +75,15 @@ void menu_loop() {
             case 1:     // Alarm
                 tft_drawalarm(config.AlarmDateTime, BGColor);
                 break;
-            case 2:     // ZEN
+            case 2:     // Sounds
+                tft_drawprevious(BGColor);
+                tft_drawplay(0, BGColor);
+                tft_drawnext(BGColor);
+                tft_drawsound(SOUNDs, BGColor);
+                tft_drawvolume(config.Volume, BGColor);
                 break;
             case 3:     // Lights
+                tft_drawEFX(EFX, BGColor);
                 for (size_t i = 0; i < NEOPixelsNUM; i++) NEOcolor_set (BLACK, i);
                 break;
         }
@@ -97,7 +97,15 @@ void menu_loop() {
             case 1:     // Alarm
                 tft_drawalarm(config.AlarmDateTime, MainColor);
                 break;
+            case 2:     // Sounds
+                tft_drawprevious(MainColor);
+                tft_drawplay(0, MainColor);
+                tft_drawnext(MainColor);
+                tft_drawsound(SOUNDs, MainColor);
+                tft_drawvolume(config.Volume, MainColor);
+                break;
             case 3:     // Lights
+                tft_drawEFX(EFX, MainColor);
                 for (size_t i = 0; i < NEOPixelsNUM; i++) NEOcolor_set (BLACK, i);
                 break;
         }
@@ -124,7 +132,7 @@ void menu_loop() {
                 break;
 
         case 2:
-                loop_zen();
+                loop_sounds();
                 break;
         case 3:
                 loop_lights();
@@ -142,7 +150,11 @@ void menu_loop() {
                     MENU = (MENU + 1)%(sizeof(menu_main)/sizeof(*menu_main));
                     telnet_println("Menu: " + menu_main[MENU]);
                     A_COUNT = 0;
-            }
+                }
+                if(A_COUNT == 2 && !A_STATUS && (millis() - last_A > 6 * interval)) {
+                    MENU = 0;
+                    A_COUNT = 0;
+                }
     }
 
     // ICONs handling

@@ -66,12 +66,12 @@ void storeStruct(void *data_source, size_t size)
 void storage_print() {
 
   Serial.println("Printing Config");
-  Serial.printf("Device Name: %s and Location: %s\n", config.DeviceName.c_str(), config.Location.c_str());
+  Serial.printf("Device Name: %s and Location: %s\n", config.DeviceName, config.Location);
   Serial.printf("ON time[sec]: %d  SLEEP Time[min]: %d  DEEPSLEEP enabled: %d\n", config.ONTime, config.SLEEPTime, config.DEEPSLEEP);
   Serial.printf("LED enabled: %d - TELNET enabled: %d - OTA enabled: %d - WEB enabled: %d\n", config.LED, config.TELNET, config.OTA, config.WEB);
   Serial.printf("WiFi STA Mode: %d\n", config.STAMode);
-  Serial.printf("WiFi SSID: %s\n", config.ssid.c_str());
-  Serial.printf("WiFi Key: %s\n", config.WiFiKey.c_str());
+  Serial.printf("WiFi SSID: %s\n", config.ssid);
+  Serial.printf("WiFi Key: %s\n", config.WiFiKey);
 
   Serial.printf("DHCP enabled: %d\n", config.dhcp);
   if(!config.dhcp) {
@@ -79,7 +79,7 @@ void storage_print() {
       Serial.printf("Mask: %d.%d.%d.%d\n", config.Netmask[0],config.Netmask[1],config.Netmask[2],config.Netmask[3]);
       Serial.printf("Gateway: %d.%d.%d.%d\n", config.Gateway[0],config.Gateway[1],config.Gateway[2],config.Gateway[3]);
   }
-  Serial.printf("NTP Server Name: %s\n", config.NTPServerName.c_str());
+  Serial.printf("NTP Server Name: %s\n", config.NTPServerName);
   Serial.printf("NTP update every %ld minutes.\n", config.Update_Time_Via_NTP_Every);
   Serial.printf("Timezone: %ld  -  DayLight: %d\n", config.TimeZone, config.isDayLightSaving);
 }

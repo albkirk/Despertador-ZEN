@@ -2,7 +2,7 @@
 char validData[10];
 
 void  mqtt_custom(String reqparam, String reqvalue, JsonObject& data) {
-  if ( reqparam == "Volume") {config.Volume = byte(long(data["value"])); storage_write(); }
+  if ( reqparam == "Level") {config.Volume = byte(long(data["value"]));}
   if ( reqparam == "Color") {
       strcpy(validData, data["value"]);
       if (validData[0] == '#') strcpy(Color, data["value"]);

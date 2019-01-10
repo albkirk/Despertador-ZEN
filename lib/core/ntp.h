@@ -123,7 +123,7 @@ void getNTPtime()
     else {
           UDPNTPClient.begin(2390);               // Port for NTP receive
           IPAddress timeServerIP;
-          WiFi.hostByName(config.NTPServerName.c_str(), timeServerIP);
+          WiFi.hostByName(config.NTPServerName, timeServerIP);
 
           //Serial.println("sending NTP packet...");
           memset(packetBuffer, 0, NTP_PACKET_SIZE);

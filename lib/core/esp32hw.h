@@ -66,21 +66,27 @@ String HEXtoUpperString(uint32_t hexval, uint hexlen) {
     return String(buffer);
 }
 
-/*
+double ReadVoltage(byte pin){
+  double reading = analogRead(pin); // Reference voltage is 3v3 so maximum reading is 3v3 = 4095 in range 0 to 4095
+  if(reading < 1 || reading > 4095) return 0;
+  // return -0.000000000009824 * pow(reading,3) + 0.000000016557283 * pow(reading,2) + 0.000854596860691 * reading + 0.065440348345433;
+  return -0.000000000000016 * pow(reading,4) + 0.000000000118171 * pow(reading,3)- 0.000000301211691 * pow(reading,2)+ 0.001109019271794 * reading + 0.034143524634089;
+} // Added an improved polynomial, use either, comment out as required
+
+
+
 float getVoltage() {
     // return battery level in Percentage [0 - 100%]
     voltage = 0;
     for(int i = 0; i < Number_of_measures; i++) {
-        if (Using_ADC) {voltage += analogRead(A0) * Vcc;}
-        else {voltage += ESP.getVcc();} // only later, the (final) measurement will be divided by 1000
-        delay(10);
+        voltage += analogRead(36);
+        delay(50);
     };
     voltage = voltage / Number_of_measures;
     voltage = voltage / 1000.0 + LDO_Corr;
     //telnet_println("Averaged and Corrected Voltage: " + String(voltage));
     return ((voltage - Batt_Min) / (Batt_Max - Batt_Min)) * 100.0;
 }
-*/
 
 long getRSSI() {
     // return WiFi RSSI Strength signal [dBm]
@@ -224,6 +230,10 @@ void hw_setup() {
           digitalWrite(LED_esp, LOW);                     // initialize LED off
       }
   // Input GPIOs
+      analogSetPinAttenuation(36,ADC_11db); // ADC_11db provides an attenuation so that IN/OUT = 1 / 3.6.
+                                            // An input of 3 volts is reduced to 0.833 volts before ADC measurement
+      adcAttachPin(36);                     // S_VP  -- GPIO36, ADC_PRE_AMP, ADC1_CH0, RTC_GPIO0
+
 
   // Start DHT device
       if (DHTPIN>=0) dht_val.begin();

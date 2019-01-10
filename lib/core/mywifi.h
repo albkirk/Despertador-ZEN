@@ -233,23 +233,23 @@ void wifi_connect() {
           }
           //delay(1000);                        // required to comment for fast WiFi registration
           //WiFi.hostname(config.Location + String("-") + config.DeviceName);
-          WiFi.begin(config.ssid.c_str(), config.WiFiKey.c_str());
+          WiFi.begin(config.ssid, config.WiFiKey);
           WIFI_state = WiFi.waitForConnectResult();
           if ( WIFI_state == WL_CONNECTED ) {
-              Serial.print("Connected to WiFi network! " + config.ssid + " IP: "); Serial.println(WiFi.localIP());
+              Serial.print("Connected to WiFi network! " + String(config.ssid) + " IP: "); Serial.println(WiFi.localIP());
           }
       }
       else {
           // Initialize Wifi in AP+STA mode
           WiFi.mode(WIFI_AP_STA);
-          WiFi.begin(config.ssid.c_str(), config.WiFiKey.c_str());
+          WiFi.begin(config.ssid, config.WiFiKey);
           WIFI_state = WiFi.waitForConnectResult();
           if ( WIFI_state == WL_CONNECTED ) {
-              Serial.print("Connected to WiFi network! " + config.ssid + " IP: "); Serial.println(WiFi.localIP());
+              Serial.print("Connected to WiFi network! " + String(config.ssid) + " IP: "); Serial.println(WiFi.localIP());
           }
           //WiFi.mode(WIFI_AP);                 // comment the 6 lines above if you need AP only
           WiFi.softAP(ESP_SSID.c_str());
-          //WiFi.softAP(config.ssid.c_str());
+          //WiFi.softAP(config.ssid);
           Serial.print("WiFi in AP mode, with IP: "); Serial.println(WiFi.softAPIP());
       }
   }

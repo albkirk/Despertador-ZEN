@@ -157,8 +157,15 @@ void loop_lights() {
             telnet_println("Menu: " + menu_main[MENU]);
             A_COUNT = 0;
         }
+        if(A_COUNT == 2 && !A_STATUS && (millis() - last_A > 6 * interval)) {
+            MENU = 0;
+            A_COUNT = 0;
+        }
+
         if(C_COUNT == 1 && !C_STATUS && (millis() - last_C > 6 * interval)) {
+            tft_drawEFX(EFX, BGColor);
             EFX = (EFX + 1) % (sizeof(EFXName)/sizeof(*EFXName));
+            tft_drawEFX(EFX, MainColor);
             C_COUNT = 0;
         }
     }

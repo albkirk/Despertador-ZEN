@@ -39,7 +39,7 @@
 #define   B6 1975.54
 #define   C7 2093
 
-static const String sounds[] = {"Startup", "WakeUp", "Nature", "Cucu"};
+static const String sounds[] = {"Birds", "Ocean", "Crickets", "Xilophone", "Waterfall", "Startup", "WakeUp", "Cucu"};
 
 // SAMPLES:	40000,
 // BITSPERSAMPLE:	8,
