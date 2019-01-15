@@ -2,7 +2,11 @@
 
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_ST7735.h> // Hardware-specific library
-#include <SPI.h>
+#include <Fonts/FreeMono9pt7b.h>
+#include <Fonts/FreeSerif24pt7b.h>
+#include <Fonts/FreeMonoOblique18pt7b.h>
+#include <Fonts/FreeSans24pt7b.h>
+//#include <SPI.h>
 
 // TFT PINOUT
 #define TFT_BACKLIGHT  7  // Display backlight pin (NOT CONFIRMED!!!)
@@ -160,9 +164,11 @@ void mediabuttons() {
 }
 */
 
-void tft_text(String text, int color=ST7735_WHITE, uint8_t s=1, int x=0, int y=0, bool wraptext=true) {
+void tft_text(String text, int color=ST7735_WHITE, uint8_t s=1, int x=0, int y=0, const GFXfont *font = NULL, bool wraptext=true) {
   tft.setCursor(x, y);
   tft.setTextColor(color);
+  if(font != NULL) tft.setFont(font);
+  else tft.setFont();
   tft.setTextSize(s);
   tft.setTextWrap(wraptext);
   tft.print(text);
@@ -173,6 +179,7 @@ void tft_drawhour(strDateTime strDtTm=DateTime, uint16_t color=MainColor, int x=
       if (strDtTm.hour <=9) text = String("0") + String(strDtTm.hour);
       else text = String(strDtTm.hour);
       tft_text(text,        color, 4, x,      y);
+      //tft_text(text,        color, 1, x,      y, &FreeSerif24pt7b);
 }
 
 void tft_drawmin(strDateTime strDtTm=DateTime, uint16_t color=MainColor, int x=2, int y=56) {
@@ -180,6 +187,7 @@ void tft_drawmin(strDateTime strDtTm=DateTime, uint16_t color=MainColor, int x=2
       if (strDtTm.minute <=9) text = String("0") + String(strDtTm.minute);
       else text = String(strDtTm.minute);
       tft_text(text,      color, 4, x + 55, y);
+      //tft_text(text,      color, 1, x + 55, y, &FreeSerif24pt7b);
 }
 
 void tft_drawsec(strDateTime strDtTm=DateTime, uint16_t color=MainColor, int x=2, int y=56) {
@@ -222,10 +230,16 @@ void tft_drawsound(byte strDtTm_sound = 0, uint16_t color=MainColor, int x=7, in
       tft_text(text,        color, 2, x,      y);
 }
 
-void tft_drawvolume(byte volbar = config.Volume, uint16_t color=MainColor, int x=14, int y=98) {
-      tft.drawRect(x-2, y-2, 104, 10, color);
-      tft.fillRect(x, y, volbar, 6, color);
-      }
+void tft_drawvolume(byte volbar = config.Volume, uint16_t color=MainColor, int x=12, int y=96) {
+      tft.drawRect(x, y, 104, 10, color);
+      tft.fillRect(x+2, y+2, volbar, 6, color);
+}
+
+void tft_drawshades(byte level = 50, uint16_t color=MainColor, uint16_t bgcolor=BGColor, int x=24, int y=40) {
+    tft.drawRect(x - 2, y - 2, 84, 54, color);
+    tft.fillRect(x, y, 80, level/2, color);
+    tft.fillRect(x, y + level/2, 80, 50 - level/2, bgcolor);
+}
 
 void tft_drawEFX(byte EFXid = 0, uint16_t color=MainColor, int x=7, int y=34) {
       String text="";

@@ -16,12 +16,12 @@
 // HARWARE & SOFTWARE Version
 #define BRANDName "AlBros_Team"                         // Hardware brand name
 #define MODELName "ZENDesperta"                         // Hardware model name
-#define SWVer "01.04"                                   // Major.Minor Software version (use String 01.00 - 99.99 format !)
+#define SWVer "01.05"                                   // Major.Minor Software version (use String 01.00 - 99.99 format !)
 
 // Battery & ESP Voltage
 #define BattPowered true                                // Is the device battery powered?
-#define LDO_Corr float(0.0)                             // Battery Voltage [volt] corrective Factor due to LDO/Diode voltage drop
-#define Batt_L_Thrs 40                                  // Battery level threshold [0%-100%] (before slepping forever).
+#define LDO_Corr float(-0.05)                           // Battery Voltage [volt] corrective Factor due to LDO/Diode voltage drop
+#define Batt_L_Thrs 10                                  // Battery level threshold [0%-100%] (before slepping forever).
 
 // GPIO to Function Assignment
 #define Using_ADC false                                 // will this device use the ADC? (if not it will measure the interval voltage)
@@ -123,15 +123,19 @@ void config_defaults() {
     config.AlarmDateTime = {0, 1, 0, 0, 0, 0, 7, true, 1};// Alarm DateTime structure
 }
 
-// Create Global COLOR related variables
+// **** Normal code definition here ...
+
+// - - -  COLOR related variables  - - -
     char Color[10]     = "#00000000"; // RGB Color code. syntax: '#' + RED + GREEN + BLUE + Transparency
     char LastColor[10] = "#00000000"; // each param use 2 CHARs and range from 0 to FF (HEX format of 0-255).
                                       // Transparency is ignored. It's kept only for compatibility purposes.
-                                      //  - - -  NeoPixels  - - -
-// Which pin on the ESP32 is connected to the NeoPixels?
-#define NEOPixelsPIN  18
-// How many NeoPixels LEDs are attached to the ESP32?
-#define NEOPixelsNUM  8
+
+//  - - -  NeoPixels  - - -
+#define NEOPixelsPIN  18              // pin on the ESP32 to connected to the NeoPixels
+#define NEOPixelsNUM  8               // Number of NeoPixels LEDs
+
+//  - - -  Shades  - - -
+    byte SHADES = 80;                 // Position of SHADES
 
 
 #include <storage.h>
@@ -142,11 +146,12 @@ void config_defaults() {
 //#include <web.h>
 #include <ota.h>
 #include <mqtt.h>
+#include <SDReader.h>
 #include <global.h>
 
 
-// **** Normal code definition here ...
 
+// **** Normal code functions here ...
 #include <sounds.h>
 #include <images.h>
 #define  TFTRotate 1
@@ -155,8 +160,6 @@ void config_defaults() {
 #include <dacplayer.h>
 #include <menu.h>
 
-
-// **** Normal code functions here ...
 
 
 void setup() {
@@ -197,8 +200,11 @@ void setup() {
   // Start MQTT service
       mqtt_setup();
 
-  //  LOW Battery check
-      LOW_Batt_check();               // Must be execute after mqtt_setup. If LOW Batt, it will DeepSleep forever!
+  // Start SD Card reader
+      SDReader_setup();
+
+  //  LOW Battery check (GLOBAL library)
+      //LOW_Batt_check();               // Must be execute after mqtt_setup. If LOW Batt, it will DeepSleep forever!
 
 
   // **** Normal SETUP Sketch code here...

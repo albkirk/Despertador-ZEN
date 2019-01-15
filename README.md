@@ -28,7 +28,7 @@ HS2_DATA3  -- GPIO13, ADC2_CH4, TOUCH4, RTC_GPIO14, MTCK, HSPID, HS2_DATA3, SD_D
 
 
 Lights (10 x WS2812b)
-Data -- GPIO19, VSPIQ, U0CTS, EMAC_TXD0 
+Data -- GPIO18, VSPICLK, HS1_DATA7
 
 Touch
 Touch Left  -- GPIO27, ADC2_CH7, TOUCH7, RTC_GPIO17, EMAC_RX_DV  			                        (Just plug a single wire!)

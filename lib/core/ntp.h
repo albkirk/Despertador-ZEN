@@ -18,7 +18,7 @@ struct strDateTime
 strDateTime DateTime;                         // Global DateTime structure
 strDateTime LastDateTime = {25, 61, 61, 1, 13, 32, 8};
 static const uint8_t monthDays[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-static const String WeekDays[] = {"Dummy", "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT", "Daily", "Work Days", "Weekends"};
+static const String WeekDays[] = {"Weekends", "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT", "Daily", "Work Days"};
 const int NTP_PACKET_SIZE = 48;
 byte packetBuffer[ NTP_PACKET_SIZE];
 volatile unsigned long UTCTimeStamp = 0;      // GLOBAL TIME var ( Will be retrieved via NTP protocol)
@@ -191,13 +191,6 @@ void curDateTime() {
 byte DateTime_hour(void) {return DateTime.hour;}
 byte DateTime_minute(void) {return DateTime.minute;}
 byte DateTime_second(void) {return DateTime.second;}
-
-void GoingToSleep(byte Time_minutes = 0) {
-  //rtcData.lastUTCTime = curUnixTime();
-  //RTC_write();
-  ESP.deepSleep( Time_minutes * 60 * 1000000);   // time in minutes converted to microseconds
-}
-
 
 void ntp_setup () {
     getNTPtime();

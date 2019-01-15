@@ -27,8 +27,43 @@ byte LIGHTs = 0;
 //#include <mn_zen.h>
 #include <mn_sounds.h>
 #include <mn_lights.h>
+#include <mn_shades.h>
 #include <mn_clock.h>  /// this must be the last one as it calls functions from previous libs
 //  - - -  Functions  - - -
+void batt_icon_update() {
+    tft_text((String((int)Batt_Level)+"%"),BGColor, 1, 104, 16);
+    tft_text((String(voltage, 2)+"v"),BGColor, 1, 98, 26);
+    Batt_Level = getVoltage();
+    tft_text((String((int)Batt_Level)+"%"),ST7735_WHITE, 1, 104, 16);
+    tft_text((String(voltage, 2)+"v"),ST7735_WHITE, 1, 98, 26);
+    if (Batt_Level > 75)  {
+        tft.drawBitmap(110, 4,battery_icon_1_4, 16, 8, ST7735_WHITE);
+        tft.fillRect(113, 6, 2, 4, ST7735_WHITE);
+        tft.fillRect(117, 6, 2, 4, ST7735_WHITE);
+        tft.fillRect(121, 6, 2, 4, ST7735_WHITE);
+    }
+    else if (Batt_Level > 50 && Batt_Level <= 75) {
+        tft.drawBitmap(110, 4,battery_icon_1_4, 16, 8, ST7735_WHITE);
+        tft.fillRect(113, 6, 2, 4, ST7735_WHITE);
+        tft.fillRect(117, 6, 2, 4, ST7735_WHITE);
+        tft.fillRect(121, 6, 2, 4, BGColor);
+    }
+    else if (Batt_Level > 25 && Batt_Level <= 50) {
+      tft.drawBitmap(110, 4,battery_icon_1_4, 16, 8, ST7735_WHITE);
+      tft.fillRect(113, 6, 2, 4, ST7735_WHITE);
+      tft.fillRect(117, 6, 2, 4, BGColor);
+      tft.fillRect(121, 6, 2, 4, BGColor);
+    }
+    else if (Batt_Level <= 25)  {
+        tft.drawBitmap(110, 4,battery_icon_1_4, 16, 8, ST7735_RED);
+        tft.fillRect(113, 6, 2, 4, BGColor);
+        tft.fillRect(117, 6, 2, 4, BGColor);
+        tft.fillRect(121, 6, 2, 4, BGColor);
+        player_beepdn(2);
+    }
+    //LOW_Batt_check();
+}
+
 void loop_icons() {
   //  -- WiFI Icon --
     if ( WIFI_state != Last_WIFI_state ) {
@@ -47,14 +82,16 @@ void loop_icons() {
     };
 
   // battery Icon
-  //tft.drawBitmap(48, 4,battery_icon_1_4, 16, 8, ST7735_RED);
-  //tft.drawBitmap(64, 4,battery_icon_2_4, 16, 8, ST7735_YELLOW);
-  //tft.drawBitmap(80, 4,battery_icon_3_4, 16, 8, ST7735_WHITE);
-  tft.drawBitmap(110, 4,battery_icon_4_4, 16, 8, ST7735_WHITE);
+    if (((millis() - RefMillis)%30000) < 20) batt_icon_update();
+
+  // Touch Button
+    if (TL_STATUS == true ) {      // Were Touch Buttons pressed?
+        tft_text(("Touched!"),ST7735_GREEN, 1, 40, 2);
+        delay(250);
+        tft_text(("Touched!"),BGColor, 1, 40, 2);
+    }
 }
 
-void loop_shades() {
-}
 
 void loop_system() {
 }
@@ -62,6 +99,7 @@ void loop_system() {
 
 void menu_setup() {
   Last_Alarm_State = !config.Alarm_State;             // To force the bell icon update
+  batt_icon_update();                                 // To force the Battery icon update
 }
 
 void menu_loop() {
@@ -86,6 +124,9 @@ void menu_loop() {
                 tft_drawEFX(EFX, BGColor);
                 for (size_t i = 0; i < NEOPixelsNUM; i++) NEOcolor_set (BLACK, i);
                 break;
+            case 4:     // Shades
+                    tft_drawshades(SHADES, BGColor);
+                    break;
         }
         switch(MENU) {  // actions to execute whenn moving to current menu. typically, draw the full image.
             case 0:     // Clock
@@ -107,6 +148,9 @@ void menu_loop() {
             case 3:     // Lights
                 tft_drawEFX(EFX, MainColor);
                 for (size_t i = 0; i < NEOPixelsNUM; i++) NEOcolor_set (BLACK, i);
+                break;
+            case 4:     // Shades
+                tft_drawshades(SHADES, MainColor);
                 break;
         }
         //telnet_print("Last Menu: " + menu_main[Last_MENU]);
@@ -137,10 +181,10 @@ void menu_loop() {
         case 3:
                 loop_lights();
                 break;
-        /*
         case 4:
                 loop_shades();
                 break;
+        /*
         case 5:
                 loop_system();
                 break;

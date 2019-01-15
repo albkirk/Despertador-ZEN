@@ -26,7 +26,7 @@ uint32_t getChipId() {
 
 // Battery & ESP Voltage
 #define Batt_Max float(4.2)                 // Battery Highest voltage.  [v]
-#define Batt_Min float(3.0)                 // Battery lowest voltage.   [v]
+#define Batt_Min float(3.4)                 // Battery lowest voltage.   [v]
 #define Vcc float(3.3)                      // Theoretical/Typical ESP voltage. [v]
 #define VADC_MAX float(1.0)                 // Maximum ADC Voltage input
 float voltage = 0.0;                        // Input Voltage [v]
@@ -66,10 +66,20 @@ String HEXtoUpperString(uint32_t hexval, uint hexlen) {
     return String(buffer);
 }
 
+
+void GoingToSleep(byte Time_minutes = 0) {
+  //rtcData.lastUTCTime = curUnixTime();
+  //RTC_write();
+  //ESP.deepSleep( Time_minutes * 60 * 1000000);
+  if (Time_minutes > 0) esp_sleep_enable_timer_wakeup(Time_minutes * 60  * 1000000);  // time in minutes converted to microseconds
+  esp_deep_sleep_start();
+}
+
+
 double ReadVoltage(byte pin){
   double reading = analogRead(pin); // Reference voltage is 3v3 so maximum reading is 3v3 = 4095 in range 0 to 4095
-  if(reading < 1 || reading > 4095) return 0;
-  // return -0.000000000009824 * pow(reading,3) + 0.000000016557283 * pow(reading,2) + 0.000854596860691 * reading + 0.065440348345433;
+  if(reading < 1 || reading > 4095) return -1;
+  //return -0.000000000009824 * pow(reading,3) + 0.000000016557283 * pow(reading,2) + 0.000854596860691 * reading + 0.065440348345433;
   return -0.000000000000016 * pow(reading,4) + 0.000000000118171 * pow(reading,3)- 0.000000301211691 * pow(reading,2)+ 0.001109019271794 * reading + 0.034143524634089;
 } // Added an improved polynomial, use either, comment out as required
 
@@ -79,12 +89,12 @@ float getVoltage() {
     // return battery level in Percentage [0 - 100%]
     voltage = 0;
     for(int i = 0; i < Number_of_measures; i++) {
-        voltage += analogRead(36);
+        voltage += ReadVoltage(36);
         delay(50);
     };
     voltage = voltage / Number_of_measures;
-    voltage = voltage / 1000.0 + LDO_Corr;
-    //telnet_println("Averaged and Corrected Voltage: " + String(voltage));
+    voltage = (voltage * 2) + LDO_Corr;
+    Serial.println("Averaged and Corrected Voltage: " + String(voltage));
     return ((voltage - Batt_Min) / (Batt_Max - Batt_Min)) * 100.0;
 }
 

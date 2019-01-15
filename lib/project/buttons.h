@@ -188,6 +188,6 @@ void buttons_setup() {
   attachInterrupt(BUT_B, B_pressed, CHANGE);
   attachInterrupt(BUT_C, C_pressed, CHANGE);
   touchAttachInterrupt(TouchPins[0], &T_Left_pressed, TouchThreshold[0]);
-  touchAttachInterrupt(TouchPins[1], &T_Right_pressed, TouchThreshold[1]);
+  //touchAttachInterrupt(TouchPins[1], &T_Right_pressed, TouchThreshold[1]);
 
 }
