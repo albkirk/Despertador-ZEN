@@ -15,7 +15,7 @@ void loop_sounds() {
             MENU = 0;
             A_COUNT = 0;
     }
-    if(B_COUNT == 1 && !B_STATUS && (millis() - last_B > 6 * interval)) {
+    if(B_COUNT == 1 && !B_STATUS && (millis() - last_B > 6 * interval)) {   // Next sound
         tft_drawnext(SetColor);
         tft_drawsound(SOUNDs, BGColor);
         SOUNDs = (SOUNDs + 1) % (sizeof(sounds)/sizeof(*sounds));
@@ -24,16 +24,14 @@ void loop_sounds() {
         tft_drawnext(MainColor);
         B_COUNT = 0;
     }
-    if(B_COUNT == 1 && B_STATUS && (millis() - last_B > 6 * interval)) {
+    if(B_COUNT == 1 && B_STATUS && (millis() - last_B > 6 * interval)) {    // Play sound
         tft_drawplay(0, BGColor);
-        tft_drawplay(1, EditColor);
+        tft_drawplay(2, EditColor);
         player_play(SOUNDs);
-        tft_drawplay(1, BGColor);
-        tft_drawplay(0, MainColor);
         MENU_LastTime = millis();
         B_COUNT = 0;
     }
-    if(B_COUNT == 2 && !B_STATUS && (millis() - last_B > 6 * interval)) {
+    if(B_COUNT == 2 && !B_STATUS && (millis() - last_B > 6 * interval)) {   // Previous sound
         tft_drawprevious(SetColor);
         tft_drawsound(SOUNDs, BGColor);
         if (SOUNDs == 0) SOUNDs = (sizeof(sounds)/sizeof(*sounds)) - 1;
@@ -43,24 +41,29 @@ void loop_sounds() {
         tft_drawprevious(MainColor);
         B_COUNT = 0;
     }
-    if(C_COUNT == 1 && !C_STATUS && (millis() - last_C > 6 * interval)) {
+    if(C_COUNT == 1 && !C_STATUS && (millis() - last_C > 6 * interval)) {  // Volume UP
             tft_drawvolume(config.Volume, BGColor);
             config.Volume = config.Volume + 10;
             if (config.Volume > 100) config.Volume = 0;
             tft_drawvolume(config.Volume, MainColor);
             C_COUNT = 0;
     }
-    if(C_COUNT == 1 && C_STATUS && (millis() - last_C > 6 * interval)) {
+    if(C_COUNT == 1 && C_STATUS && (millis() - last_C > 6 * interval)) {    // Store Volume
             player_beep(1);
             storage_write();
             C_COUNT = 0;
     }
-    if(C_COUNT == 2 && !C_STATUS && (millis() - last_C > 6 * interval)) {
+    if(C_COUNT == 2 && !C_STATUS && (millis() - last_C > 6 * interval)) {   // Volume DOWN
             tft_drawvolume(config.Volume, BGColor);
             if (config.Volume == 0) config.Volume = 100;
             else if (config.Volume <= 10) config.Volume = 0;
             else config.Volume = config.Volume - 10;
             tft_drawvolume(config.Volume, MainColor);
             C_COUNT = 0;
+    }
+    if (play_status == 1) {
+            tft_drawplay(2, BGColor);
+            tft_drawplay(0, MainColor);
+            play_status = 0;
     }
 }
