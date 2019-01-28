@@ -116,6 +116,8 @@ void menu_loop() {
             case 2:     // Sounds
                 tft_drawprevious(BGColor);
                 tft_drawplay(0, BGColor);
+                tft_drawplay(1, BGColor);
+                tft_drawplay(2, BGColor);
                 tft_drawnext(BGColor);
                 tft_drawsound(SOUNDs, BGColor);
                 tft_drawvolume(config.Volume, BGColor);
@@ -140,7 +142,8 @@ void menu_loop() {
                 break;
             case 2:     // Sounds
                 tft_drawprevious(MainColor);
-                tft_drawplay(0, MainColor);
+                if (play_status <= 1) tft_drawplay(0, MainColor);
+                if (play_status >= 2) tft_drawplay(2, EditColor);
                 tft_drawnext(MainColor);
                 tft_drawsound(SOUNDs, MainColor);
                 tft_drawvolume(config.Volume, MainColor);

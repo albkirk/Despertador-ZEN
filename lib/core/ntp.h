@@ -192,6 +192,7 @@ byte DateTime_hour(void) {return DateTime.hour;}
 byte DateTime_minute(void) {return DateTime.minute;}
 byte DateTime_second(void) {return DateTime.second;}
 
+
 void ntp_setup () {
     getNTPtime();
     if (NTP_Sync) {

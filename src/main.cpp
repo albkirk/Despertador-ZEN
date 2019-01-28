@@ -16,12 +16,12 @@
 // HARWARE & SOFTWARE Version
 #define BRANDName "AlBros_Team"                         // Hardware brand name
 #define MODELName "ZENDesperta"                         // Hardware model name
-#define SWVer "01.05"                                   // Major.Minor Software version (use String 01.00 - 99.99 format !)
+#define SWVer "01.06"                                   // Major.Minor Software version (use String 01.00 - 99.99 format !)
 
 // Battery & ESP Voltage
 #define BattPowered true                                // Is the device battery powered?
 #define LDO_Corr float(-0.05)                           // Battery Voltage [volt] corrective Factor due to LDO/Diode voltage drop
-#define Batt_L_Thrs 10                                  // Battery level threshold [0%-100%] (before slepping forever).
+#define Batt_L_Thrs 20                                  // Battery level threshold [0%-100%] (before slepping forever).
 
 // GPIO to Function Assignment
 #define Using_ADC false                                 // will this device use the ADC? (if not it will measure the interval voltage)
@@ -96,8 +96,6 @@ void config_defaults() {
     config.WEB = false;                                   // 0 - Disabled, 1 - Enabled
     config.Remote_Allow = true;                           // 0 - Not Allow, 1 - Allow remote operation
     config.STAMode = true;                                // 0 - AP or AP+STA Mode, 1 - Station only Mode
-    //config.ssid = String("ALU_MEO_IPTV");                 // Wireless LAN SSID (STA mode)
-    //config.WiFiKey = String("ALUME0IPTV");                  // Wireless LAN Key (STA mode)
     strcpy(config.ssid, "ThomsonCasaN");                 // Wireless LAN SSID (STA mode)
     strcpy(config.WiFiKey, "12345678");                  // Wireless LAN Key (STA mode)
     config.dhcp = true;                                   // 0 - Static IP, 1 - DHCP
@@ -131,7 +129,7 @@ void config_defaults() {
                                       // Transparency is ignored. It's kept only for compatibility purposes.
 
 //  - - -  NeoPixels  - - -
-#define NEOPixelsPIN  18              // pin on the ESP32 to connected to the NeoPixels
+#define NEOPixelsPIN  21 //18              // pin on the ESP32 to connected to the NeoPixels
 #define NEOPixelsNUM  8               // Number of NeoPixels LEDs
 
 //  - - -  Shades  - - -
@@ -148,6 +146,8 @@ void config_defaults() {
 #include <mqtt.h>
 #include <SDReader.h>
 #include <global.h>
+
+
 
 
 

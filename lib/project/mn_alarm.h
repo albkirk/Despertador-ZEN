@@ -7,7 +7,7 @@ byte Alarm_Set_index = 0;                     // Alarm item index to set (hour, 
 //  - - -  ALARM related FUNCTIONS  - - -
 void alarm_ring(strDateTime stralrDtTm=config.AlarmDateTime, strDateTime strDtTm=DateTime) {
   if (stralrDtTm.alarm == true && strDtTm.second <=1 && stralrDtTm.hour == strDtTm.hour && stralrDtTm.minute == strDtTm.minute) {
-      if (stralrDtTm.wday == 7 || (stralrDtTm.wday == 8 && strDtTm.wday >= 2 &&  strDtTm.wday <= 6) || (stralrDtTm.wday == 9 && strDtTm.wday <=1) || stralrDtTm.wday == strDtTm.wday) {
+      if (stralrDtTm.wday == 8 || (stralrDtTm.wday == 9 && strDtTm.wday >= 2 && strDtTm.wday <= 6) || (stralrDtTm.wday == 0 && (strDtTm.wday ==1 || strDtTm.wday ==7)) || stralrDtTm.wday == strDtTm.wday) {
             player_play(stralrDtTm.sound);
         }
   }

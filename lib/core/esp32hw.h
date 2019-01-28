@@ -1,3 +1,4 @@
+#include "Adafruit_Sensor.h"
 #include <DHT.h>
 
 #include <buttons.h>
@@ -26,7 +27,7 @@ uint32_t getChipId() {
 
 // Battery & ESP Voltage
 #define Batt_Max float(4.2)                 // Battery Highest voltage.  [v]
-#define Batt_Min float(3.4)                 // Battery lowest voltage.   [v]
+#define Batt_Min float(3.0)                 // Battery lowest voltage.   [v]
 #define Vcc float(3.3)                      // Theoretical/Typical ESP voltage. [v]
 #define VADC_MAX float(1.0)                 // Maximum ADC Voltage input
 float voltage = 0.0;                        // Input Voltage [v]
@@ -66,11 +67,19 @@ String HEXtoUpperString(uint32_t hexval, uint hexlen) {
     return String(buffer);
 }
 
-
+/*
+//  ESP8266
 void GoingToSleep(byte Time_minutes = 0) {
   //rtcData.lastUTCTime = curUnixTime();
   //RTC_write();
-  //ESP.deepSleep( Time_minutes * 60 * 1000000);
+  ESP.deepSleep( Time_minutes * 60 * 1000000);   // time in minutes converted to microseconds
+}
+*/
+
+// ESP32
+void GoingToSleep(byte Time_minutes = 0) {
+  //rtcData.lastUTCTime = curUnixTime();
+  //RTC_write();
   if (Time_minutes > 0) esp_sleep_enable_timer_wakeup(Time_minutes * 60  * 1000000);  // time in minutes converted to microseconds
   esp_deep_sleep_start();
 }

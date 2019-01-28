@@ -62,7 +62,7 @@ Change Light brightness by changing the value of: GAIN
     long GAIN = 100;                  // Color gain 0 to 100%
 // EFX
     const String EFXName[] = {"NoEFX", "Auto", "Flash", "Fade3", "Fade7", "Jump3", "Jump7", "Raibow", "Scan"};
-    byte EFX = 0;                     // The EFX to be played
+    byte EFX = 7;                     // The EFX to be played
     byte EFX_RGB[3] = {0, 0, 0};      // Effects RGB trio byte values used during Effects
     int  EFX_idx=0;                   // RGB array index
     long EFX_Delta=-2;                // RGB delta value change (-2 or +2)
@@ -281,6 +281,9 @@ void color_loop() {
       //if (String(Color) != String(LastColor)) if (color_set(Color)) mqtt_publish(mqtt_pathtele(), "Color", Color);
       switch (EFX) {
           case 0:
+              for (size_t i = 0; i < NEOPixelsNUM; i++) {
+                NEOcolor_set(BLACK, i);
+              }
               break;
           case 1:
               color_Auto();
