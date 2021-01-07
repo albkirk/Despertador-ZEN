@@ -64,7 +64,7 @@ void tft_updateclock() {
 
 
 void loop_clock() {
-   if(A_COUNT == 1 && !A_STATUS && (millis() - last_A > 6 * interval)) {
+   if(A_COUNT == 1 && !A_STATUS && (millis() - Last_A > Butt_Interval)) {
         MENU = (MENU + 1)%(sizeof(menu_main)/sizeof(*menu_main));
         //telnet_println("Menu: " + menu_main[MENU]);
         A_COUNT = 0;

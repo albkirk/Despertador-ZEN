@@ -53,6 +53,9 @@ Change Light brightness by changing the value of: GAIN
 //
 // VARIABLES
 //
+    char Color[10]     = "#00000000"; // RGB Color code. syntax: '#' + RED + GREEN + BLUE + Transparency
+    char LastColor[10] = "#00000000"; // each param use 2 CHARs and range from 0 to FF (HEX format of 0-255).
+                                      // Transparency is ignored. It's kept only for compatibility purposes.
     byte RGB[3];                      // RRB trio byte Values to control the OUTPut PWM PINs
     byte neoID = 0;                    // NEO Pixel ID [0 - n] to change color
     byte zeros[3] = {0, 0, 0};        // trio of byte Value 0 to represnt Black color
@@ -62,7 +65,7 @@ Change Light brightness by changing the value of: GAIN
     long GAIN = 100;                  // Color gain 0 to 100%
 // EFX
     const String EFXName[] = {"NoEFX", "Auto", "Flash", "Fade3", "Fade7", "Jump3", "Jump7", "Raibow", "Scan"};
-    byte EFX = 7;                     // The EFX to be played
+    byte EFX = 0;                     // The EFX to be played
     byte EFX_RGB[3] = {0, 0, 0};      // Effects RGB trio byte values used during Effects
     int  EFX_idx=0;                   // RGB array index
     long EFX_Delta=-2;                // RGB delta value change (-2 or +2)

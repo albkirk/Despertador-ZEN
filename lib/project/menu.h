@@ -1,7 +1,9 @@
 
 //  - - -  Constants
 //static const String menu_main[] = {"Clock", "Alarm", "ZEN", "Shades", "System"};
-static const String menu_main[] = {"Clock", "Alarm", "Sounds", "Lights", "Shades", "System"};
+//static const String menu_main[] = {"Clock", "Alarm", "Sounds", "Lights", "Shades", "System"};
+static const String menu_main[] = {"Clock", "Alarm", "Sounds", "Lights", "Ambient", "System"};
+//static const String menu_main[] = {"Clock", "Ambient"};
 static const String menu_zen[] =    {"Florest",     "Beach",    "Night",     "Raibow",    "Sunset"};
 //static const String sounds[] = {"Birds",       "Ocean",    "Crickets",  "Xilophone", "Waterfall"};
 static const String lights[] = {"LIGHT_GREEN", "SKY_BLUE", "DEEP_BLUE", "PURPLE",    "ORANGE"};
@@ -27,34 +29,46 @@ byte LIGHTs = 0;
 //#include <mn_zen.h>
 #include <mn_sounds.h>
 #include <mn_lights.h>
+#include <mn_ambient.h>
 #include <mn_shades.h>
 #include <mn_clock.h>  /// this must be the last one as it calls functions from previous libs
 //  - - -  Functions  - - -
 void batt_icon_update() {
-    tft_text((String((int)Batt_Level)+"%"),BGColor, 1, 104, 16);
-    tft_text((String(voltage, 2)+"v"),BGColor, 1, 98, 26);
-    Batt_Level = getVoltage();
-    tft_text((String((int)Batt_Level)+"%"),ST7735_WHITE, 1, 104, 16);
-    tft_text((String(voltage, 2)+"v"),ST7735_WHITE, 1, 98, 26);
-    if (Batt_Level > 75)  {
+    //tft_text((String((int)Batt_Level)+"%"),BGColor, 1, 104, 16);
+    //tft_text((String(voltage, 2)+"v"),BGColor, 1, 98, 26);
+    float Batt_Level = getBattLevel();
+    //tft_text((String((int)Batt_Level)+"%"),ST7735_WHITE, 1, 104, 16);
+    //tft_text((String(voltage, 2)+"v"),ST7735_WHITE, 1, 98, 26);
+    if (Batt_Level > 100)  {
+        BattPowered = false;
+        tft.drawBitmap(110, 4,battery_icon_1_4, 16, 8, ST7735_BLUE);
+        tft.fillRect(113, 6, 2, 4, ST7735_BLUE);
+        tft.fillRect(117, 6, 2, 4, ST7735_BLUE);
+        tft.fillRect(121, 6, 2, 4, ST7735_BLUE);
+    }
+    if (Batt_Level > 75 && Batt_Level <= 100)  {
+        BattPowered = true;
         tft.drawBitmap(110, 4,battery_icon_1_4, 16, 8, ST7735_WHITE);
         tft.fillRect(113, 6, 2, 4, ST7735_WHITE);
         tft.fillRect(117, 6, 2, 4, ST7735_WHITE);
         tft.fillRect(121, 6, 2, 4, ST7735_WHITE);
     }
     else if (Batt_Level > 50 && Batt_Level <= 75) {
+        BattPowered = true;
         tft.drawBitmap(110, 4,battery_icon_1_4, 16, 8, ST7735_WHITE);
         tft.fillRect(113, 6, 2, 4, ST7735_WHITE);
         tft.fillRect(117, 6, 2, 4, ST7735_WHITE);
         tft.fillRect(121, 6, 2, 4, BGColor);
     }
     else if (Batt_Level > 25 && Batt_Level <= 50) {
+        BattPowered = true;
       tft.drawBitmap(110, 4,battery_icon_1_4, 16, 8, ST7735_WHITE);
       tft.fillRect(113, 6, 2, 4, ST7735_WHITE);
       tft.fillRect(117, 6, 2, 4, BGColor);
       tft.fillRect(121, 6, 2, 4, BGColor);
     }
     else if (Batt_Level <= 25)  {
+        BattPowered = true;
         tft.drawBitmap(110, 4,battery_icon_1_4, 16, 8, ST7735_RED);
         tft.fillRect(113, 6, 2, 4, BGColor);
         tft.fillRect(117, 6, 2, 4, BGColor);
@@ -85,10 +99,10 @@ void loop_icons() {
     if (((millis() - RefMillis)%30000) < 20) batt_icon_update();
 
   // Touch Button
-    if (TL_STATUS == true ) {      // Were Touch Buttons pressed?
-        tft_text(("Touched!"),ST7735_GREEN, 1, 40, 2);
-        delay(250);
-        tft_text(("Touched!"),BGColor, 1, 40, 2);
+    if (Last_TL_STATUS != TL_STATUS) {
+        if (TL_STATUS == true) tft_text(("Touched!"),ST7735_GREEN, 1, 40, 2);
+        if (TL_STATUS == false) tft_text(("Touched!"),BGColor, 1, 40, 2);
+        Last_TL_STATUS = TL_STATUS;
     }
 }
 
@@ -126,8 +140,10 @@ void menu_loop() {
                 tft_drawEFX(EFX, BGColor);
                 for (size_t i = 0; i < NEOPixelsNUM; i++) NEOcolor_set (BLACK, i);
                 break;
-            case 4:     // Shades
-                    tft_drawshades(SHADES, BGColor);
+            case 4:     // Ambient
+                tft_drawambient(Last_Temperature, Last_Humidity, Last_Tempe_MIN, Last_Tempe_MAX, BGColor);
+            //case 4:     // Shades
+                    //tft_drawshades(SHADES, BGColor);
                     break;
         }
         switch(MENU) {  // actions to execute whenn moving to current menu. typically, draw the full image.
@@ -152,8 +168,10 @@ void menu_loop() {
                 tft_drawEFX(EFX, MainColor);
                 for (size_t i = 0; i < NEOPixelsNUM; i++) NEOcolor_set (BLACK, i);
                 break;
-            case 4:     // Shades
-                tft_drawshades(SHADES, MainColor);
+            case 4:     // Alarm
+                refresh_ambient();
+            //case 4:     // Shades
+                //tft_drawshades(SHADES, MainColor);
                 break;
         }
         //telnet_print("Last Menu: " + menu_main[Last_MENU]);
@@ -163,11 +181,13 @@ void menu_loop() {
         Last_MENU = MENU;
         MENU_LastTime = millis();
     }
-    // Timeout to clear sub-menu flags and return to Main (clock) Menu
 
+    // Timeout to clear sub-menu flags and return to Main (clock) Menu
     if ( millis() - MENU_LastTime > (Backto_MENU * 1000)) {
         Alarm_Set = false;
         MENU = 0;
+        //MENU = (MENU + 1)%(sizeof(menu_main)/sizeof(*menu_main));  // jump through all menus
+
     }
 
     switch(MENU) {
@@ -184,8 +204,10 @@ void menu_loop() {
         case 3:
                 loop_lights();
                 break;
-        case 4:
-                loop_shades();
+        case 4:     // alarm
+                loop_ambient();
+        //case 4:
+                //loop_shades();
                 break;
         /*
         case 5:
@@ -193,12 +215,12 @@ void menu_loop() {
                 break;
         */
         default :
-                if(A_COUNT == 1 && !A_STATUS && (millis() - last_A > 6 * interval)) {
+                if(A_COUNT == 1 && !A_STATUS && (millis() - Last_A > Butt_Interval)) {
                     MENU = (MENU + 1)%(sizeof(menu_main)/sizeof(*menu_main));
                     telnet_println("Menu: " + menu_main[MENU]);
                     A_COUNT = 0;
                 }
-                if(A_COUNT == 2 && !A_STATUS && (millis() - last_A > 6 * interval)) {
+                if(A_COUNT == 2 && !A_STATUS && (millis() - Last_A > Butt_Interval)) {
                     MENU = 0;
                     A_COUNT = 0;
                 }

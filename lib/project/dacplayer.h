@@ -46,7 +46,7 @@ byte play_status = 0;
 // Setup the Timed interrupt
 void Touch_to_Stop() {
   if (TL_COUNT>=1) {      // Was Touch Button pressed?
-    TL_COUNT = 0;
+    //TL_COUNT = 0;
     //TL_STATUS = false;
     player_stop = true;
   }

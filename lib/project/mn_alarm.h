@@ -15,19 +15,19 @@ void alarm_ring(strDateTime stralrDtTm=config.AlarmDateTime, strDateTime strDtTm
 
 
 void set_alarm() {
-        if(A_COUNT == 1 && !A_STATUS && (millis() - last_A > 6 * interval)) {
+        if(A_COUNT == 1 && !A_STATUS && (millis() - Last_A > Butt_Interval)) {
             A_COUNT = 0;
         }
-        if(B_COUNT == 1 && !B_STATUS && (millis() - last_B > 6 * interval)) {
+        if(B_COUNT == 1 && !B_STATUS && (millis() - Last_B > Butt_Interval)) {
             Menu_Next = true;
             B_COUNT = 0;
             MENU_LastTime = millis();
         }
-        if(C_COUNT == 1 && !C_STATUS && (millis() - last_C > 6 * interval)) {
+        if(C_COUNT == 1 && !C_STATUS && (millis() - Last_C > Butt_Interval)) {
             delta = 1;
             C_COUNT = 0;
         }
-        if(C_COUNT == 2 && !C_STATUS && (millis() - last_C > 6 * interval)) {
+        if(C_COUNT == 2 && !C_STATUS && (millis() - Last_C > Butt_Interval)) {
             delta = 10;
             C_COUNT = 0;
         }
@@ -141,7 +141,7 @@ void set_alarm() {
 }
 
 void loop_alarm() {
-    if(B_COUNT == 1 && B_STATUS && (millis() - last_B > 6 * interval)) {
+    if(B_COUNT == 1 && B_STATUS && (millis() - Last_B > Butt_Interval)) {
         if (!Alarm_Set) {
             Alarm_Set = true;
             tft_drawalarm(config.AlarmDateTime, SetColor);
@@ -161,16 +161,16 @@ void loop_alarm() {
         set_alarm();
     }
     else{
-        if(A_COUNT == 1 && !A_STATUS && (millis() - last_A > 6 * interval)) {
+        if(A_COUNT == 1 && !A_STATUS && (millis() - Last_A > Butt_Interval)) {
             MENU = (MENU + 1)%(sizeof(menu_main)/sizeof(*menu_main));
             telnet_println("Menu: " + menu_main[MENU]);
             A_COUNT = 0;
         }
-        if(A_COUNT == 2 && !A_STATUS && (millis() - last_A > 6 * interval)) {
+        if(A_COUNT == 2 && !A_STATUS && (millis() - Last_A > Butt_Interval)) {
             MENU = 0;
             A_COUNT = 0;
         }
-        if(C_COUNT == 1 && C_STATUS && (millis() - last_C > 6 * interval)) {
+        if(C_COUNT == 1 && C_STATUS && (millis() - Last_C > Butt_Interval)) {
             config.Alarm_State = !config.Alarm_State;
             storage_write();
             C_COUNT = 0;
