@@ -1,170 +1,29 @@
 /* ****************************************************/
-#include <Adafruit_GFX.h>    // Core graphics library
-#include <Adafruit_ST7735.h> // Hardware-specific library
-//#include <SPI.h>
 
+#include <GxEPD2_BW.h>
 
-Adafruit_ST7735 display = Adafruit_ST7735(CS_PIN, DC_PIN, MOSI_PIN, CLK_PIN, RST_PIN);
-uint16_t MainColor=ST7735_WHITE;
-uint16_t BGColor=ST7735_BLACK;
-uint16_t SetColor=ST7735_YELLOW;
-uint16_t EditColor=ST7735_ORANGE;
-
+GxEPD2_BW<GxEPD2_213_B73, GxEPD2_213_B73::HEIGHT> display(GxEPD2_213_B73(CS_PIN, DC_PIN, RST_PIN, BUSY_PIN)); // GDEH0213B73
+uint16_t MainColor=GxEPD_BLACK;
+uint16_t BGColor=GxEPD_WHITE;
+uint16_t SetColor=GxEPD_DARKGREY;
+uint16_t EditColor=GxEPD_LIGHTGREY;
 
 #include <Fonts/FreeMono9pt7b.h>
 #include <Fonts/FreeSerif24pt7b.h>
 #include <Fonts/FreeMonoOblique18pt7b.h>
 #include <Fonts/FreeSans24pt7b.h>
 
-/*
-void testlines(uint16_t color) {
-  display.fillScreen(BGColor);
-  for (int16_t x=0; x < display.width(); x+=6) {
-    display.drawLine(0, 0, x, display.height()-1, color);
-  }
-  for (int16_t y=0; y < display.height(); y+=6) {
-    display.drawLine(0, 0, display.width()-1, y, color);
-  }
-
-  display.fillScreen(BGColor);
-  for (int16_t x=0; x < display.width(); x+=6) {
-    display.drawLine(display.width()-1, 0, x, display.height()-1, color);
-  }
-  for (int16_t y=0; y < display.height(); y+=6) {
-    display.drawLine(display.width()-1, 0, 0, y, color);
-  }
-
-  display.fillScreen(BGColor);
-  for (int16_t x=0; x < display.width(); x+=6) {
-    display.drawLine(0, display.height()-1, x, 0, color);
-  }
-  for (int16_t y=0; y < display.height(); y+=6) {
-    display.drawLine(0, display.height()-1, display.width()-1, y, color);
-  }
-
-  display.fillScreen(BGColor);
-  for (int16_t x=0; x < display.width(); x+=6) {
-    display.drawLine(display.width()-1, display.height()-1, x, 0, color);
-  }
-  for (int16_t y=0; y < display.height(); y+=6) {
-    display.drawLine(display.width()-1, display.height()-1, 0, y, color);
-  }
-}
-
-void display_pixel(int x=0, int y=0, int color=ST7735_WHITE) {
-    display.drawPixel(display.width()/2, display.height()/2, ST7735_GREEN);  // function to be reviewed
-}
-
-void testfastlines(uint16_t color1, uint16_t color2) {
-  display.fillScreen(BGColor);
-  for (int16_t y=0; y < display.height(); y+=5) {
-    display.drawFastHLine(0, y, display.width(), color1);
-  }
-  for (int16_t x=0; x < display.width(); x+=5) {
-    display.drawFastVLine(x, 0, display.height(), color2);
-  }
-}
-
-void testdrawrects(uint16_t color) {
-  display.fillScreen(BGColor);
-  for (int16_t x=0; x < display.width(); x+=6) {
-    display.drawRect(display.width()/2 -x/2, display.height()/2 -x/2 , x, x, color);
-  }
-}
-
-void testfillrects(uint16_t color1, uint16_t color2) {
-  display.fillScreen(BGColor);
-  for (int16_t x=display.width()-1; x > 6; x-=6) {
-    display.fillRect(display.width()/2 -x/2, display.height()/2 -x/2 , x, x, color1);
-    display.drawRect(display.width()/2 -x/2, display.height()/2 -x/2 , x, x, color2);
-  }
-}
-
-void testfillcircles(uint8_t radius, uint16_t color) {
-  for (int16_t x=radius; x < display.width(); x+=radius*2) {
-    for (int16_t y=radius; y < display.height(); y+=radius*2) {
-      display.fillCircle(x, y, radius, color);
-    }
-  }
-}
-
-void testdrawcircles(uint8_t radius, uint16_t color) {
-  for (int16_t x=0; x < display.width()+radius; x+=radius*2) {
-    for (int16_t y=0; y < display.height()+radius; y+=radius*2) {
-      display.drawCircle(x, y, radius, color);
-    }
-  }
-}
-
-void testtriangles() {
-  display.fillScreen(BGColor);
-  int color = 0xF800;
-  int t;
-  int w = display.width()/2;
-  int x = display.height()-1;
-  int y = 0;
-  int z = display.width();
-  for(t = 0 ; t <= 15; t++) {
-    display.drawTriangle(w, y, y, x, z, x, color);
-    x-=4;
-    y+=4;
-    z-=4;
-    color+=100;
-  }
-}
-
-void testroundrects() {
-  display.fillScreen(BGColor);
-  int color = 100;
-  int i;
-  int t;
-  for(t = 0 ; t <= 4; t+=1) {
-    int x = 0;
-    int y = 0;
-    int w = display.width()-2;
-    int h = display.height()-2;
-    for(i = 0 ; i <= 16; i+=1) {
-      display.drawRoundRect(x, y, w, h, 5, color);
-      x+=2;
-      y+=3;
-      w-=4;
-      h-=6;
-      color+=1100;
-    }
-    color+=100;
-  }
-}
-
-void mediabuttons() {
-  // play
-  display.fillScreen(BGColor);
-  display.fillRoundRect(25, 10, 78, 60, 8, ST7735_WHITE);
-  display.fillTriangle(42, 20, 42, 60, 90, 40, ST7735_RED);
-  delay(500);
-  // pause
-  display.fillRoundRect(25, 90, 78, 60, 8, ST7735_WHITE);
-  display.fillRoundRect(39, 98, 20, 45, 5, ST7735_GREEN);
-  display.fillRoundRect(69, 98, 20, 45, 5, ST7735_GREEN);
-  delay(500);
-  // play color
-  display.fillTriangle(42, 20, 42, 60, 90, 40, ST7735_BLUE);
-  delay(50);
-  // pause color
-  display.fillRoundRect(39, 98, 20, 45, 5, ST7735_RED);
-  display.fillRoundRect(69, 98, 20, 45, 5, ST7735_RED);
-  // play color
-  display.fillTriangle(42, 20, 42, 60, 90, 40, ST7735_GREEN);
-}
-*/
-
-void display_text(String text, int color=ST7735_WHITE, uint8_t s=1, int x=0, int y=0, const GFXfont *font = NULL, bool wraptext=true) {
-  display.setCursor(x, y);
-  display.setTextColor(color);
-  if(font != NULL) display.setFont(font);
-  else display.setFont();
-  display.setTextSize(s);
-  display.setTextWrap(wraptext);
-  display.print(text);
+void display_text(String text, uint16_t color=MainColor, uint8_t s=1, int x=0, int y=0, const GFXfont *font = NULL, bool wraptext=true) {
+    display.setCursor(x, y);
+    display.setTextColor(color);
+    if(font != NULL) display.setFont(font);
+    else display.setFont();
+    display.setTextSize(s);
+    display.setTextWrap(wraptext);
+    display.firstPage();
+    do {
+        display.print(text);
+    } while (display.nextPage());
 }
 
 void display_drawhour(strDateTime strDtTm=DateTime, uint16_t color=MainColor, int x=2, int y=56) {
@@ -307,7 +166,7 @@ void batt_icon_update() {
     float Batt_Level = getBattLevel();
     //display_text((String((int)Batt_Level)+"%"),ST7735_WHITE, 1, 104, 16);
     //display_text((String(voltage, 2)+"v"),ST7735_WHITE, 1, 98, 26);
-    if (Batt_Level > 100)  {
+/*    if (Batt_Level > 100)  {
         BattPowered = false;
         display.drawBitmap(110, 4,battery_icon_1_4, 16, 8, ST7735_BLUE);
         display.fillRect(113, 6, 2, 4, ST7735_BLUE);
@@ -344,9 +203,11 @@ void batt_icon_update() {
         player_beepdn(2);
     }
     //LOW_Batt_check();
+*/
 }
 
 void loop_icons() {
+/*
   //  -- WiFI Icon --
     if ( WIFI_state != Last_WIFI_state ) {
         if ( WIFI_state == WL_CONNECTED ) display.drawBitmap(20, 0, wifi_icon, 16, 16, ST7735_WHITE);
@@ -372,29 +233,31 @@ void loop_icons() {
         if (TL_STATUS == false) display_text(("Touched!"),BGColor, 1, 40, 2);
         Last_TL_STATUS = TL_STATUS;
     }
+*/
 }
-
 
 
 void display_setup() {
 
-    // Use this initializer if you're using a 1.8" TFT
-    //display.initR(INITR_BLACKTAB);   // initialize a ST7735S chip, black tab
+    delay(100);
+    display.init(115200);
 
-    // Use this initializer (uncomment) if you're using a 1.44" TFT
-    display.initR(INITR_144GREENTAB);   // initialize a ST7735S chip, black tab
-    Serial.println("TFT Initialized");
+    Serial.println("EPaper Initialized");
+    if (display.epd2.hasFastPartialUpdate) Serial.println("FAST!! partial mode");
+    else if (display.epd2.hasPartialUpdate) Serial.println("Slow partial mode");
+    else Serial.println("NO partial mode");
+ 
+    display.setRotation(EPaperRotate);
 
     long deltatime = millis();
     display.fillScreen(BGColor);
     deltatime = millis() - deltatime;
 
-    display.setRotation(TFTRotate);
-    /*
-    display.setTextColor(MainColor);    // ST7735_RED
-    display.setTextSize(0);
-    display.println("time: " + String(deltatime));
-    display.println("F Rate: " + String(1000/deltatime));
+    display.setTextColor(EditColor);    // ST7735_RED
+    display.setTextSize(3);
+    //display_text("time: " + String(deltatime));
+    display_text("Date / Time: " + curDateTime());
+    //display.println("F Rate: " + String(1000/deltatime));
     delay(5000);
-    */
+    display.powerOff();
 }

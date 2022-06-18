@@ -16,36 +16,36 @@ void loop_sounds() {
             A_COUNT = 0;
     }
     if(B_COUNT == 1 && !B_STATUS && (millis() - Last_B > Butt_Interval)) {   // Next sound
-        tft_drawnext(SetColor);
-        tft_drawsound(SOUNDs, BGColor);
+        display_drawnext(SetColor);
+        display_drawsound(SOUNDs, BGColor);
         SOUNDs = (SOUNDs + 1) % (sizeof(sounds)/sizeof(*sounds));
-        tft_drawsound(SOUNDs, MainColor);
+        display_drawsound(SOUNDs, MainColor);
         delay(100);
-        tft_drawnext(MainColor);
+        display_drawnext(MainColor);
         B_COUNT = 0;
     }
     if(B_COUNT == 1 && B_STATUS && (millis() - Last_B > Butt_Interval)) {    // Play sound
-        tft_drawplay(0, BGColor);
-        tft_drawplay(2, EditColor);
+        display_drawplay(0, BGColor);
+        display_drawplay(2, EditColor);
         player_play(SOUNDs);
         MENU_LastTime = millis();
         B_COUNT = 0;
     }
     if(B_COUNT == 2 && !B_STATUS && (millis() - Last_B > Butt_Interval)) {   // Previous sound
-        tft_drawprevious(SetColor);
-        tft_drawsound(SOUNDs, BGColor);
+        display_drawprevious(SetColor);
+        display_drawsound(SOUNDs, BGColor);
         if (SOUNDs == 0) SOUNDs = (sizeof(sounds)/sizeof(*sounds)) - 1;
         else SOUNDs = (SOUNDs - 1) % (sizeof(sounds)/sizeof(*sounds));
-        tft_drawsound(SOUNDs, MainColor);
+        display_drawsound(SOUNDs, MainColor);
         delay(100);
-        tft_drawprevious(MainColor);
+        display_drawprevious(MainColor);
         B_COUNT = 0;
     }
     if(C_COUNT == 1 && !C_STATUS && (millis() - Last_C > Butt_Interval)) {   // Volume UP
-            tft_drawvolume(config.Volume, BGColor);
+            display_drawvolume(config.Volume, BGColor);
             config.Volume = config.Volume + 10;
             if (config.Volume > 100) config.Volume = 0;
-            tft_drawvolume(config.Volume, MainColor);
+            display_drawvolume(config.Volume, MainColor);
             C_COUNT = 0;
     }
     if(C_COUNT == 1 && C_STATUS && (millis() - Last_C > Butt_Interval)) {    // Store Volume
@@ -54,16 +54,16 @@ void loop_sounds() {
             C_COUNT = 0;
     }
     if(C_COUNT == 2 && !C_STATUS && (millis() - Last_C > Butt_Interval)) {   // Volume DOWN
-            tft_drawvolume(config.Volume, BGColor);
+            display_drawvolume(config.Volume, BGColor);
             if (config.Volume == 0) config.Volume = 100;
             else if (config.Volume <= 10) config.Volume = 0;
             else config.Volume = config.Volume - 10;
-            tft_drawvolume(config.Volume, MainColor);
+            display_drawvolume(config.Volume, MainColor);
             C_COUNT = 0;
     }
     if (play_status == 1) {
-            tft_drawplay(2, BGColor);
-            tft_drawplay(0, MainColor);
+            display_drawplay(2, BGColor);
+            display_drawplay(0, MainColor);
             play_status = 0;
     }
 }

@@ -39,8 +39,8 @@ void on_message(const char* topic, byte* payload, unsigned int msg_length) {
     if ( command == "DeviceName") {hassio_delete(); strcpy(config.DeviceName, cmd_value.c_str()); hassio_discovery(); hassio_attributes(); storage_write(); }
     if ( command == "Location") {strcpy(config.Location, cmd_value.c_str()); config_backup(); hassio_attributes(); storage_write(); }
     if ( command == "ClientID") {hassio_delete(); strcpy(config.ClientID, cmd_value.c_str()); hassio_discovery(); hassio_attributes(); storage_write(); }
-    if ( command == "DEEPSLEEP") { config.DEEPSLEEP = bool(cmd_value.toInt()); storage_write(); }
-    if ( command == "SLEEPTime" && cmd_value.toInt() >= 0) { config.SLEEPTime = byte(cmd_value.toInt()); SLEEPTime = config.SLEEPTime; storage_write(); mqtt_publish(mqtt_pathcomd, "SLEEPTime", "", true); }
+    if ( command == "DEEPSLEEP" && cmd_value !="") { config.DEEPSLEEP = bool(cmd_value.toInt()); storage_write(); mqtt_publish(mqtt_pathcomd, "DEEPSLEEP", "", true);}
+    if ( command == "SLEEPTime" && cmd_value !="" && cmd_value.toInt() >= 0) { config.SLEEPTime = byte(cmd_value.toInt()); SLEEPTime = config.SLEEPTime; storage_write(); mqtt_publish(mqtt_pathcomd, "SLEEPTime", "", true); }
     if ( command == "ONTime") { config.ONTime = byte(cmd_value.toInt());storage_write(); }
     if ( command == "ExtendONTime") if (bool(cmd_value.toInt()) == true) Extend_time = 60;
     if ( command == "LED") {config.LED = bool(cmd_value.toInt()); mqtt_publish(mqtt_pathtele, "LED", String(config.LED));}
@@ -212,41 +212,44 @@ void parse_command_msg(String bufferRead) {
 
 // TELNET commands to run on loop function.
 void telnet_loop() {
-		blink_LED(3);
-	   //check if there are any new clients
-    if (telnetClient.connected()) {
-        if ((millis() - TELNET_Timer) > MAX_TIME_INACTIVE) {
-            telnetClient.println("Closing Telnet session by inactivity");
-            telnetClient.stop();
-        }
-    }
-
-    if (telnetServer.hasClient()) {
-        if (telnetClient && telnetClient.connected()) {
-            // Verify if the IP is same than actual conection
-            newClient = telnetServer.available();
-            if (newClient.remoteIP() == telnetClient.remoteIP() ) {
-                // Reconnect
+	blink_LED(3);
+    if (WIFI_state != WL_CONNECTED) yield();
+    else {
+	    //check if there are any new clients
+        if (telnetClient.connected()) {
+            if ((millis() - TELNET_Timer) > MAX_TIME_INACTIVE) {
+                telnetClient.println("Closing Telnet session by inactivity");
                 telnetClient.stop();
-                telnetClient = newClient;
+            }
+        }
+
+        if (telnetServer.hasClient()) {
+            if (telnetClient && telnetClient.connected()) {
+                // Verify if the IP is same than actual conection
+                newClient = telnetServer.available();
+                if (newClient.remoteIP() == telnetClient.remoteIP() ) {
+                    // Reconnect
+                    telnetClient.stop();
+                    telnetClient = newClient;
+                }
+                else {
+                    // Disconnect (not allow more than one connection)
+                    newClient.stop();
+                    return;
+                }
             }
             else {
-                // Disconnect (not allow more than one connection)
-                newClient.stop();
-                return;
+                // New TCP client
+                telnetClient = telnetServer.available();
+                telnetClient.setNoDelay(true);      // Faster... ?
+                telnetClient.flush();               // clear input buffer, else you get strange characters
+                TELNET_Timer = millis();            // initiate timer for inactivity
+                if (config.DEBUG) Serial.println("New telnet client!");
             }
         }
-        else {
-            // New TCP client
-            telnetClient = telnetServer.available();
-            telnetClient.setNoDelay(true);      // Faster... ?
-            telnetClient.flush();               // clear input buffer, else you get strange characters
-            TELNET_Timer = millis();            // initiate timer for inactivity
-            if (config.DEBUG) Serial.println("New telnet client!");
-        }
+
+        if (telnetClient.available()) parse_command_msg(telnetClient.readStringUntil('\n'));
+
+        yield();
     }
-
-    if (telnetClient.available()) parse_command_msg(telnetClient.readStringUntil('\n'));
-
-    yield();
 }

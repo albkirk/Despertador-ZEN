@@ -11,14 +11,14 @@
 #define SWVer               "03.01"                     // Major.Minor Software version (use String 01.00 - 99.99 format !)
 
 // -- GPIO to Function Assignment --
-#define LED_ESP             22                          // 8266=2, ESP32=22, T-Call=13, -1 means NOT used!
+#define LED_ESP             19                          // 8266=2, ESP32=22, T-Call=13, TTGoTS=22, T5=19, -1 means NOT used!
 #define BUZZER              -1                          // (Active) Buzzer pin. Suggest to use pin 0. -1 means NOT used!
 #define Ext1WakeUP          -1                          // External Wake Up pin. (connected to GND, with Parallel Cap).  -1 means NOT used!
 #define Def_Config          -1                          // Return to Default configuration. -1 means NOT used! 
-#define BUT_A               35                          // Button A INPUT pin (used in buttons.h)
-#define BUT_B               34                          // Button B INPUT pin (used in buttons.h)
-#define BUT_C               39                          // Button C INPUT pin (used in buttons.h)
-#define T_Left              T7                          // Touch button Left  pin. -1 means NOT used! 
+#define BUT_A               -1                          // Button A INPUT pin (used in buttons.h) TTGoTS=35,
+#define BUT_B               -1                          // Button B INPUT pin (used in buttons.h) TTGoTS=34,
+#define BUT_C               39                          // Button C INPUT pin (used in buttons.h) TTGoTS=39,
+#define T_Left              -1                          // Touch button Left  pin. TTGoTS=T7, -1 means NOT used!
 #define T_Right             -1                          // Touch button Right pin. -1 means NOT used! 
 
 //TouchPins[] = { T0, T1, T2, T3, T4, T5, T6, T7, T8, T9 };  // ALL TOUCH values available!
@@ -29,6 +29,12 @@
 bool BattPowered =          true;                       // Is the device battery powered?
 #define Batt_L_Thrs         15                          // Battery level threshold [0%-100%] (before slepping forever).
 #define Using_ADC           true                        // will this device use the ADC? (if not, ES8266 will measure the internal voltage)
+
+// -- SPI PIN Definition --
+#define MISO_PIN            -1                          // SPI MISO pin,TTGoTS->-1, -1 means NOT used!
+#define MOSI_PIN            23                          // SPI MOSI pin,TTGoTS->23, -1 means NOT used!
+#define CLK_PIN             18                          // SPI CLK pin, TTGoTS-> 5, -1 means NOT used!
+#define CS_PIN               5                          // SPI CS pin,  TTGoTS->16, -1 means NOT used!
 
 // -- I2C PIN Definition --
 #define SDAPIN              -1                          // 8266=4, ESP32=21, -1 means NO SDA used!
@@ -52,6 +58,15 @@ bool BattPowered =          true;                       // Is the device battery
 #define GPS_RX              -1                          // T-Call=32, ESP8266=14, -1 means NOT used!
 #define GPS_TX              -1                          // T-Call=33, ESP8266=12, -1 means NOT used!
 #define GPS_SW              -1                          // Pin for the MOFFET based GPS power switch. -1 means NOT used!
+
+// -- DISPLAY Definition --
+//#define TFT                                             // TFT Display based on Driver ST7735 used on TTGo TS
+#define EPAPER                                          // E-Paper Display model GDEH0213B73 used on TTGo T5 v2.3
+
+#define BACKLIGHT           -1                          // Display backlight pin,TTGoTS->-1, -1 means NOT used!
+#define RST_PIN             16                          // Display RST pin,      TTGoTS-> 9, -1 means NOT used!
+#define DC_PIN              17                          // Display DC pin,       TTGoTS->17, -1 means NOT used!
+#define BUSY_PIN             4                          // Display BUSY pin,     TTGoTS->-1, -1 means NOT used!
 
 
 void config_defaults() {
@@ -87,7 +102,7 @@ void config_defaults() {
     strcpy(config.MQTT_User, "admin");                    // MQTT Broker username
     strcpy(config.MQTT_Password, "admin");                // MQTT Broker password
     strcpy(config.UPDATE_Server, "iothubna.hopto.org");   // UPDATE Server (URL or IP)
-    config.UPDATE_Port = 1880;                            // UPDATE Server TCP port
+    config.UPDATE_Port = 8123;                            // UPDATE Server TCP port
     strcpy(config.UPDATE_User, "user");                   // UPDATE Server username
     strcpy(config.UPDATE_Password, "1q2w3e4r");           // UPDATE Server password
     strcpy(config.SIMCardPIN, "1234");                    // SIM card PIN

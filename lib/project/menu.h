@@ -33,83 +33,6 @@ byte LIGHTs = 0;
 #include <mn_shades.h>
 #include <mn_clock.h>  /// this must be the last one as it calls functions from previous libs
 //  - - -  Functions  - - -
-void batt_icon_update() {
-    //tft_text((String((int)Batt_Level)+"%"),BGColor, 1, 104, 16);
-    //tft_text((String(voltage, 2)+"v"),BGColor, 1, 98, 26);
-    float Batt_Level = getBattLevel();
-    //tft_text((String((int)Batt_Level)+"%"),ST7735_WHITE, 1, 104, 16);
-    //tft_text((String(voltage, 2)+"v"),ST7735_WHITE, 1, 98, 26);
-    if (Batt_Level > 100)  {
-        BattPowered = false;
-        tft.drawBitmap(110, 4,battery_icon_1_4, 16, 8, ST7735_BLUE);
-        tft.fillRect(113, 6, 2, 4, ST7735_BLUE);
-        tft.fillRect(117, 6, 2, 4, ST7735_BLUE);
-        tft.fillRect(121, 6, 2, 4, ST7735_BLUE);
-    }
-    if (Batt_Level > 75 && Batt_Level <= 100)  {
-        BattPowered = true;
-        tft.drawBitmap(110, 4,battery_icon_1_4, 16, 8, ST7735_WHITE);
-        tft.fillRect(113, 6, 2, 4, ST7735_WHITE);
-        tft.fillRect(117, 6, 2, 4, ST7735_WHITE);
-        tft.fillRect(121, 6, 2, 4, ST7735_WHITE);
-    }
-    else if (Batt_Level > 50 && Batt_Level <= 75) {
-        BattPowered = true;
-        tft.drawBitmap(110, 4,battery_icon_1_4, 16, 8, ST7735_WHITE);
-        tft.fillRect(113, 6, 2, 4, ST7735_WHITE);
-        tft.fillRect(117, 6, 2, 4, ST7735_WHITE);
-        tft.fillRect(121, 6, 2, 4, BGColor);
-    }
-    else if (Batt_Level > 25 && Batt_Level <= 50) {
-        BattPowered = true;
-      tft.drawBitmap(110, 4,battery_icon_1_4, 16, 8, ST7735_WHITE);
-      tft.fillRect(113, 6, 2, 4, ST7735_WHITE);
-      tft.fillRect(117, 6, 2, 4, BGColor);
-      tft.fillRect(121, 6, 2, 4, BGColor);
-    }
-    else if (Batt_Level <= 25)  {
-        BattPowered = true;
-        tft.drawBitmap(110, 4,battery_icon_1_4, 16, 8, ST7735_RED);
-        tft.fillRect(113, 6, 2, 4, BGColor);
-        tft.fillRect(117, 6, 2, 4, BGColor);
-        tft.fillRect(121, 6, 2, 4, BGColor);
-        player_beepdn(2);
-    }
-    //LOW_Batt_check();
-}
-
-void loop_icons() {
-  //  -- WiFI Icon --
-    if ( WIFI_state != Last_WIFI_state ) {
-        if ( WIFI_state == WL_CONNECTED ) tft.drawBitmap(20, 0, wifi_icon, 16, 16, ST7735_WHITE);
-        else tft.drawBitmap(20, 0, wifi_icon, 16, 16, BGColor);
-        Last_WIFI_state = WIFI_state;
-    };
-    //tft.drawBitmap(20, 0, wifi_OFF_icon, 16, 16, ST7735_GREEN);
-
-
-  // -- ALARM Icon --
-    if ( config.Alarm_State != Last_Alarm_State ) {
-        if (config.Alarm_State) tft.drawBitmap(0,0,bell_icon,16,16,MainColor);
-        else tft.drawBitmap(0,0,bell_icon,16,16,BGColor);
-        Last_Alarm_State = config.Alarm_State;
-    };
-
-  // battery Icon
-    if (((millis() - RefMillis)%30000) < 20) batt_icon_update();
-
-  // Touch Button
-    if (Last_TL_STATUS != TL_STATUS) {
-        if (TL_STATUS == true) tft_text(("Touched!"),ST7735_GREEN, 1, 40, 2);
-        if (TL_STATUS == false) tft_text(("Touched!"),BGColor, 1, 40, 2);
-        Last_TL_STATUS = TL_STATUS;
-    }
-}
-
-
-void loop_system() {
-}
-
 
 void menu_setup() {
   Last_Alarm_State = !config.Alarm_State;             // To force the bell icon update
@@ -121,63 +44,63 @@ void menu_loop() {
     if (Last_MENU != MENU) {
         switch(Last_MENU) {   // actions to execute before Leaving the current menu. typically, to clean the screen...
             case 0:     // Clock
-                tft_drawtime(LastDateTime, BGColor);  // Clear clock
-                tft_drawdate(LastDateTime, BGColor);  // Clear date
+                display_drawtime(LastDateTime, BGColor);  // Clear clock
+                display_drawdate(LastDateTime, BGColor);  // Clear date
                 break;
             case 1:     // Alarm
-                tft_drawalarm(config.AlarmDateTime, BGColor);
+                display_drawalarm(config.AlarmDateTime, BGColor);
                 break;
             case 2:     // Sounds
-                tft_drawprevious(BGColor);
-                tft_drawplay(0, BGColor);
-                tft_drawplay(1, BGColor);
-                tft_drawplay(2, BGColor);
-                tft_drawnext(BGColor);
-                tft_drawsound(SOUNDs, BGColor);
-                tft_drawvolume(config.Volume, BGColor);
+                display_drawprevious(BGColor);
+                display_drawplay(0, BGColor);
+                display_drawplay(1, BGColor);
+                display_drawplay(2, BGColor);
+                display_drawnext(BGColor);
+                display_drawsound(SOUNDs, BGColor);
+                display_drawvolume(config.Volume, BGColor);
                 break;
             case 3:     // Lights
-                tft_drawEFX(EFX, BGColor);
+                display_drawEFX(EFX, BGColor);
                 for (size_t i = 0; i < NEOPixelsNUM; i++) NEOcolor_set (BLACK, i);
                 break;
             case 4:     // Ambient
-                tft_drawambient(Last_Temperature, Last_Humidity, Last_Tempe_MIN, Last_Tempe_MAX, BGColor);
+                display_drawambient(Last_Temperature, Last_Humidity, Last_Tempe_MIN, Last_Tempe_MAX, BGColor);
             //case 4:     // Shades
-                    //tft_drawshades(SHADES, BGColor);
+                    //display_drawshades(SHADES, BGColor);
                     break;
         }
         switch(MENU) {  // actions to execute whenn moving to current menu. typically, draw the full image.
             case 0:     // Clock
                 curDateTime();
-                tft_drawtime(DateTime, MainColor);
-                tft_drawdate(DateTime, MainColor);
+                display_drawtime(DateTime, MainColor);
+                display_drawdate(DateTime, MainColor);
                 LastDateTime = DateTime;
                 break;
             case 1:     // Alarm
-                tft_drawalarm(config.AlarmDateTime, MainColor);
+                display_drawalarm(config.AlarmDateTime, MainColor);
                 break;
             case 2:     // Sounds
-                tft_drawprevious(MainColor);
-                if (play_status <= 1) tft_drawplay(0, MainColor);
-                if (play_status >= 2) tft_drawplay(2, EditColor);
-                tft_drawnext(MainColor);
-                tft_drawsound(SOUNDs, MainColor);
-                tft_drawvolume(config.Volume, MainColor);
+                display_drawprevious(MainColor);
+                if (play_status <= 1) display_drawplay(0, MainColor);
+                if (play_status >= 2) display_drawplay(2, EditColor);
+                display_drawnext(MainColor);
+                display_drawsound(SOUNDs, MainColor);
+                display_drawvolume(config.Volume, MainColor);
                 break;
             case 3:     // Lights
-                tft_drawEFX(EFX, MainColor);
+                display_drawEFX(EFX, MainColor);
                 for (size_t i = 0; i < NEOPixelsNUM; i++) NEOcolor_set (BLACK, i);
                 break;
             case 4:     // Alarm
                 refresh_ambient();
             //case 4:     // Shades
-                //tft_drawshades(SHADES, MainColor);
+                //display_drawshades(SHADES, MainColor);
                 break;
         }
         //telnet_print("Last Menu: " + menu_main[Last_MENU]);
         //telnet_println("\tCurrent Menu: " + menu_main[MENU]);
-        tft_text(menu_main[Last_MENU], BGColor, 1, Last_MENU * 18, 20);  // Clear Menu
-        tft_text(menu_main[MENU], MainColor, 1, MENU * 18, 20);          // write Menu
+        display_text(menu_main[Last_MENU], BGColor, 1, Last_MENU * 18, 20);  // Clear Menu
+        display_text(menu_main[MENU], MainColor, 1, MENU * 18, 20);          // write Menu
         Last_MENU = MENU;
         MENU_LastTime = millis();
     }

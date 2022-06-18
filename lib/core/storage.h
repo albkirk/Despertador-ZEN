@@ -11,6 +11,20 @@
 
 bool Load_Default = true;                   // Will it Load Default values? It means it's running for first time.  
 
+#ifndef custo_strDateTime
+struct strDateTime                          // Date & Time Struture for usage on NTP, and Alarm Clock
+{
+  byte hour;
+  byte minute;
+  byte second;
+  int year;
+  byte month;
+  byte day;
+  byte wday;
+};
+#endif
+
+
 
 //
 //  AUXILIAR functions to handle EEPROM

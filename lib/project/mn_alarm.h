@@ -34,101 +34,101 @@ void set_alarm() {
         switch (Alarm_Set_index) {
             case 0:       // edit hour
                 if (delta !=0) {
-                    tft_drawhour(config.AlarmDateTime, BGColor);
+                    display_drawhour(config.AlarmDateTime, BGColor);
                     config.AlarmDateTime.hour = (config.AlarmDateTime.hour + delta)%24;
-                    tft_drawhour(config.AlarmDateTime, EditColor);
+                    display_drawhour(config.AlarmDateTime, EditColor);
                     delta = 0;
                     break;
                 }
                 if (Menu_Next) {
-                    tft_drawhour(config.AlarmDateTime, SetColor);
+                    display_drawhour(config.AlarmDateTime, SetColor);
                     Menu_Next = false;
                     Menu_1stRun = true;
                     Alarm_Set_index ++;
                     break;
                 }
                 if (Menu_1stRun) {
-                    tft_drawhour(config.AlarmDateTime, EditColor);
+                    display_drawhour(config.AlarmDateTime, EditColor);
                     Menu_1stRun = false;
                 }
                 break;
             case 1:       // edit minute
                 if (delta !=0) {
-                    tft_drawmin(config.AlarmDateTime, BGColor);
+                    display_drawmin(config.AlarmDateTime, BGColor);
                     config.AlarmDateTime.minute = (config.AlarmDateTime.minute + delta)%60;
-                    tft_drawmin(config.AlarmDateTime, EditColor);
+                    display_drawmin(config.AlarmDateTime, EditColor);
                     delta = 0;
                     break;
                 }
                 if (Menu_Next) {
-                    tft_drawmin(config.AlarmDateTime, SetColor);
+                    display_drawmin(config.AlarmDateTime, SetColor);
                     Menu_Next = false;
                     Menu_1stRun = true;
                     Alarm_Set_index ++;
                     break;
                 }
                 if (Menu_1stRun) {
-                    tft_drawmin(config.AlarmDateTime, EditColor);
+                    display_drawmin(config.AlarmDateTime, EditColor);
                     Menu_1stRun = false;
                 }
                 break;
             case 2:       // edit Alarm Enabled
                 if (delta !=0) {
-                    tft_drawbell(config.AlarmDateTime, BGColor);
+                    display_drawbell(config.AlarmDateTime, BGColor);
                     config.AlarmDateTime.alarm = !config.AlarmDateTime.alarm;
-                    tft_drawbell(config.AlarmDateTime, EditColor);
+                    display_drawbell(config.AlarmDateTime, EditColor);
                     delta = 0;
                     break;
                 }
                 if (Menu_Next) {
-                    tft_drawbell(config.AlarmDateTime, SetColor);
+                    display_drawbell(config.AlarmDateTime, SetColor);
                     Menu_Next = false;
                     Menu_1stRun = true;
                     Alarm_Set_index ++;
                     break;
                 }
                 if (Menu_1stRun) {
-                    tft_drawbell(config.AlarmDateTime, EditColor);
+                    display_drawbell(config.AlarmDateTime, EditColor);
                     Menu_1stRun = false;
                 }
                 break;
             case 3:       // edit week day
                 if (delta !=0) {
-                    tft_drawwday(config.AlarmDateTime, BGColor);
+                    display_drawwday(config.AlarmDateTime, BGColor);
                     config.AlarmDateTime.wday = (config.AlarmDateTime.wday + delta)%10;
-                    tft_drawwday(config.AlarmDateTime, EditColor);
+                    display_drawwday(config.AlarmDateTime, EditColor);
                     delta = 0;
                     break;
                 }
                 if (Menu_Next) {
-                    tft_drawwday(config.AlarmDateTime, SetColor);
+                    display_drawwday(config.AlarmDateTime, SetColor);
                     Menu_Next = false;
                     Menu_1stRun = true;
                     Alarm_Set_index ++;
                     break;
                 }
                 if (Menu_1stRun) {
-                    tft_drawwday(config.AlarmDateTime, EditColor);
+                    display_drawwday(config.AlarmDateTime, EditColor);
                     Menu_1stRun = false;
                 }
                 break;
             case 4:       // edit Sound
                 if (delta !=0) {
-                    tft_drawsound(config.AlarmDateTime.sound, BGColor);
+                    display_drawsound(config.AlarmDateTime.sound, BGColor);
                     config.AlarmDateTime.sound = (config.AlarmDateTime.sound + delta)%(sizeof(sounds)/sizeof(*sounds));;
-                    tft_drawsound(config.AlarmDateTime.sound, EditColor);
+                    display_drawsound(config.AlarmDateTime.sound, EditColor);
                     delta = 0;
                     break;
                 }
                 if (Menu_Next) {
-                    tft_drawsound(config.AlarmDateTime.sound, SetColor);
+                    display_drawsound(config.AlarmDateTime.sound, SetColor);
                     Menu_Next = false;
                     Menu_1stRun = true;
                     Alarm_Set_index ++;
                     break;
                 }
                 if (Menu_1stRun) {
-                    tft_drawsound(config.AlarmDateTime.sound, EditColor);
+                    display_drawsound(config.AlarmDateTime.sound, EditColor);
                     Menu_1stRun = false;
                 }
                 break;
@@ -144,7 +144,7 @@ void loop_alarm() {
     if(B_COUNT == 1 && B_STATUS && (millis() - Last_B > Butt_Interval)) {
         if (!Alarm_Set) {
             Alarm_Set = true;
-            tft_drawalarm(config.AlarmDateTime, SetColor);
+            display_drawalarm(config.AlarmDateTime, SetColor);
             Menu_Next = false;
             Menu_1stRun = true;
             Alarm_Set_index = 0;
@@ -153,7 +153,7 @@ void loop_alarm() {
             Alarm_Set = false;
             player_beep(1);
             storage_write();
-            tft_drawalarm(config.AlarmDateTime, MainColor);
+            display_drawalarm(config.AlarmDateTime, MainColor);
         }
         B_COUNT = 0;
     }

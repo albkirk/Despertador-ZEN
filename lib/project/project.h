@@ -1,5 +1,6 @@
 //  - - -  TFT  - - -
-#define TFTRotate 1
+#define TFTRotate 0
+#define EPaperRotate 3
 
 //  - - -  NeoPixels  - - -
 #define NEOPixelsPIN  18 //21         // pin on the ESP32 to connected to the NeoPixels
@@ -14,7 +15,14 @@
 #include <sounds.h>
 #include <images.h>
 #include <color.h>
-#include <tft.h>
+
+#ifdef TFT
+    #include <tft.h>
+#endif
+#ifdef EPAPER
+    #include <epaper.h>
+#endif
+
 #include <dacplayer.h>
 #include <menu.h>
 
@@ -33,23 +41,23 @@ void project_hw() {
 void project_setup() {
   // Start Push Buttons call precedures
     buttons_setup();
-    touch_setup();
+    //touch_setup();
 
   // Start SD Card reader
-    SDReader_setup();
+    //SDReader_setup();
 
   // Start Ambient devices
-    ambient_setup();
+    //ambient_setup();
     //ambient_get_data();
 
   // Start TFT device
-    tft_setup();
+    display_setup();
 
   // Start Player device
-    player_setup();
+    //player_setup();
 
   // Color Managament Service
-    color_setup();
+    //color_setup();
 
   // Start MENU
     menu_setup();
@@ -61,12 +69,12 @@ void project_loop() {
     //if (TIMER >0) if ((millis() - 3500) % (TIMER * 60000) < 5) ambient_data();      // TIMER bigger than zero on div or dog bites!!
 
   // Player handling
-    player_loop();
+    //player_loop();
 
   // Color handling
-    color_loop();
+    //color_loop();
 
   // MENU handling
-    touch_loop();
-    menu_loop();
+    //touch_loop();
+    //menu_loop();
 }

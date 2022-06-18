@@ -1,38 +1,11 @@
-/*
- * Connect the SD card to the following pins:
- *
- * SD Card | ESP32
- *    D2       -
- *    D3       SS
- *    CMD      MOSI
- *    VSS      GND
- *    VDD      3.3V
- *    CLK      SCK
- *    VSS      GND
- *    D0       MISO
- *    D1       -
-
-SD Card
- HS2_CLK -- GPIO14, ADC2_CH6, TOUCH6, RTC_GPIO16, MTMS, HSPICLK,HS2_CLK, SD_CLK, EMAC_TXD2
- HS2_CMD -- GPIO15, ADC2_CH3, TOUCH3, RTC_GPIO13, MTDO, HSPICS0, HS2_CMD, SD_CMD, EMAC_RXD3
- HS2_DATA0 -- GPIO2, ADC2_CH2, TOUCH2, RTC_GPIO12, HSPIWP, HS2_DATA0, SD_DATA0
- HS2_DATA1  -- GPIO4, ADC2_CH0, TOUCH0, RTC_GPIO10, HSPIHD, HS2_DATA1, SD_DATA1, EMAC_TX_ER
- HS2_DATA2  -- GPIO12, ADC2_CH5, TOUCH5, RTC_GPIO15, MTDI, HSPIQ, HS2_DATA2, SD_DATA2, EMAC_TXD3
- HS2_DATA3  -- GPIO13, ADC2_CH4, TOUCH4, RTC_GPIO14, MTCK, HSPID, HS2_DATA3, SD_DATA3, EMAC_RX_ER
-
-if (!SD.begin(13, 15, 2, 14)) {            //T1:13,15,2,14  T2: 23,5,19,18
- */
-
-
-
-#include <FS.h>
-#include <SD.h>
 #include <SPI.h>
+#include <SD.h>
+#include <FS.h>
 
-#define PIN_NUM_MISO 2
-#define PIN_NUM_MOSI 15
-#define PIN_NUM_CLK 14
-#define PIN_NUM_CS 13
+//#define MISO_PIN 2                        // Defined in project/def_conf.h
+//#define MOSI_PIN 15                       // Defined in project/def_conf.h
+//#define CLK_PIN 14                        // Defined in project/def_conf.h
+//#define CS_PIN 13                         // Defined in project/def_conf.h
 
 void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
     Serial.printf("Listing directory: %s\n", dirname);
@@ -192,8 +165,8 @@ void testFileIO(fs::FS &fs, const char * path){
 }
 
 void SDReader_setup(){
-    SPI.begin(PIN_NUM_CLK, PIN_NUM_MISO, PIN_NUM_MOSI, PIN_NUM_CS);
-    if(!SD.begin(PIN_NUM_CS)) {
+    SPI.begin(CLK_PIN, MISO_PIN, MOSI_PIN, CS_PIN);
+    if(!SD.begin(CS_PIN)) {
         Serial.println("Card Mount Failed");
         return;
     }
