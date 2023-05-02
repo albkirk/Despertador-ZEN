@@ -2,16 +2,18 @@
  * * Main File to trigger all C code using "arduino" style.
  * * It contains all necessary function calls on setup and loop functions
  * * HOW TO USE THIS TEMPLATE:
- * * -- Adjust the parameter below to your project.
+ * * -- Adjust the parameter below to your project in "lib/project/def_conf.h"
  * *    Parameters on struct "config" will be store on memory.
- * *    Don't forget to customize the Mem read and write actions on "lib/project/custostore.h"
  * * -- Use the "// **** Normal code ..." zones to add you own definition, functions, setup and loop code
- * * -- You can also add you own MQTT actions on "lib/project/customqtt.h"
+ * * -- You can also add you own MQTT/Telnet actions on "lib/project/custoactions.h"
  * * -- Suggest to use "lib/project/" to add your own h files
  */
 
 
-#include <arduino.h>
+
+// Libraries to INCLUDE
+#include <Arduino.h>
+
 #define custo_strDateTime true
 struct strDateTime {
     byte hour;
@@ -25,27 +27,22 @@ struct strDateTime {
     byte sound;
 };
 
-// Libraries to INCLUDE
 #include <storage.h>
-
 #ifdef ESP32
     #include <esp32hw.h>
 #else 
     #include <hw8266.h>
 #endif
-
 #include <mywifi.h>
 
-#ifdef ESP8266
-    #include <httpupd.h>
-#endif
+//#ifdef ESP8266
+//    #include <httpupd.h>
+//#endif
 
-#include <telnet.h>
+#include <console.h>
 #include <ntp.h>
 #include <mqtt.h>
-#ifndef ESP8285
-    #include <ota.h>
-#endif
+#include <ota.h>
 #include <project.h>
 #include <global.h>
 #include <hassio.h>
@@ -59,9 +56,10 @@ void setup() {
   // Starting with WiFi interface shutdown in order to save energy
     wifi_disconnect();
 
-  // Start Serial interface
+  // Start SERIAL console
       //Serial.begin(74880);                  // This odd baud speed will shows ESP8266 boot diagnostics too.
-      Serial.begin(115200);               // For faster communication use 115200
+      Serial.begin(115200);                 // For faster communication use 115200
+      //Serial.setTimeout(1000);
 
       Serial.println("");
       Serial.println("Hello World!");
@@ -81,10 +79,10 @@ void setup() {
       wifi_setup();
 
   // Check for HTTP Upgrade
-#ifdef ESP8266
-      http_upg();               // Note: this service kills all running UDP and TCP services
-#endif
-  // Start TELNET service
+//#ifdef ESP8266
+//      http_upg();               // Note: this service kills all running UDP and TCP services
+//#endif
+  // Start TELNET console service
       if (config.TELNET) telnet_setup();
 
   // Start NTP service
@@ -93,16 +91,22 @@ void setup() {
  // Start MQTT service
       mqtt_setup();
 
-#ifndef ESP8285
   // Start OTA service
       if (config.OTA) ota_setup();
 
+#ifndef ESP8285
   // Start ESP Web Service
       if (config.WEB) web_setup();
 #endif
 
   // **** Project SETUP Sketch code here...
       project_setup();
+
+  // Global setup
+      global_setup();
+
+  // all setup tasks done; time to prompt
+      console_prompt();
 
   // Last bit of code before leave setup
       ONTime_Offset = millis() + 200UL;     //  200ms after finishing the SETUP function it starts the "ONTime" countdown.
@@ -120,6 +124,9 @@ void loop() {
   // WiFi handling
       wifi_loop();
 
+  // Serial handling
+      serial_loop();
+
   // TELNET handling
       if (config.TELNET) telnet_loop();
 
@@ -129,10 +136,10 @@ void loop() {
   // MQTT handling
       mqtt_loop();
 
-#ifndef ESP8285
   // OTA request handling
       if (config.OTA) ota_loop();
 
+#ifndef ESP8285
   // ESP Web Server requests handling
       if (config.WEB) web_loop();
 #endif

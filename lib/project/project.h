@@ -1,10 +1,13 @@
-//  - - -  TFT  - - -
-#define TFTRotate 0
+//  - - -  Display  - - -
+#define TFTRotate 1
 #define EPaperRotate 3
 
 //  - - -  NeoPixels  - - -
 #define NEOPixelsPIN  18 //21         // pin on the ESP32 to connected to the NeoPixels
 #define NEOPixelsNUM  8               // Number of NeoPixels LEDs
+
+//bool Alarm_State = false;                   // Defined on config structure Alarm state (true -> Ring / False -> Not Ring)
+bool Last_Alarm_State = false;                // Last Alarm state
 
 
 // **** Project code definition here ...
@@ -14,8 +17,9 @@
 #include <ambient.h>
 #include <sounds.h>
 #include <images.h>
-#include <color.h>
+//#include <color.h>
 
+#include <dacplayer.h>
 #ifdef TFT
     #include <tft.h>
 #endif
@@ -23,7 +27,6 @@
     #include <epaper.h>
 #endif
 
-#include <dacplayer.h>
 #include <menu.h>
 
 
@@ -41,10 +44,10 @@ void project_hw() {
 void project_setup() {
   // Start Push Buttons call precedures
     buttons_setup();
-    //touch_setup();
+    touch_setup();
 
   // Start SD Card reader
-    //SDReader_setup();
+    SDReader_setup();
 
   // Start Ambient devices
     //ambient_setup();
@@ -54,13 +57,15 @@ void project_setup() {
     display_setup();
 
   // Start Player device
-    //player_setup();
+    player_setup();
 
   // Color Managament Service
     //color_setup();
 
   // Start MENU
     menu_setup();
+    //display_drawtime();
+    //display_powerOff();
 
 }
 
@@ -69,12 +74,12 @@ void project_loop() {
     //if (TIMER >0) if ((millis() - 3500) % (TIMER * 60000) < 5) ambient_data();      // TIMER bigger than zero on div or dog bites!!
 
   // Player handling
-    //player_loop();
+    player_loop();
 
   // Color handling
     //color_loop();
 
   // MENU handling
-    //touch_loop();
-    //menu_loop();
+    touch_loop();
+    menu_loop();
 }

@@ -10,7 +10,7 @@ extern "C" {
 */
 
 // WiFi VARIABLEs
-#define WL_RADIO_OFF 7
+#define WL_RADIO_OFF 8
 static const String WIFI_state_Name[] = {
 	"WL_IDLE_STATUS",			// 0
     "WL_NO_SSID_AVAIL",			// 1
@@ -18,14 +18,16 @@ static const String WIFI_state_Name[] = {
     "WL_CONNECTED",				// 3
     "WL_CONNECT_FAILED",		// 4
     "WL_CONNECTION_LOST",		// 5
-    "WL_DISCONNECTED"			// 6
-    "WL_RADIO_OFF"              // 7
+    "WL_WRONG_PASSWORD",        // 6
+    "WL_DISCONNECTED",			// 7
+    "WL_RADIO_OFF",             // 8
 };
 static const String WIFI_PHY_Mode_Name[] = {
 	"RADIO_OFF",			    // 0
     "802.11b",			        // 1
     "802.11g",		            // 2
     "802.11n",				    // 3
+    "802.11",				    // 4
 };
 int WIFI_state = WL_DISCONNECTED;
 int Last_WIFI_state = WL_NO_SHIELD;
@@ -37,7 +39,7 @@ int WIFI_errors = 0;                            // WiFi errors Counter
 // Wi-Fi functions
 
 String WIFI_state_string(int wifistate = WIFI_state) {
-    return WIFI_state_Name[WIFI_state];
+    return WIFI_state_Name[wifistate];
 }
 
 void wifi_disconnect() {
@@ -114,7 +116,10 @@ void wifi_connect() {
 
 
 void wifi_setup() {
-    if (!config.APMode && !config.STAMode) WIFI_state = WL_RADIO_OFF;
+    if (!config.APMode && !config.STAMode) {
+        WIFI_state = WL_RADIO_OFF;
+        wifi_disconnect();
+    }
     else {
         WIFI_state = WL_DISCONNECTED;
         wifi_connect();

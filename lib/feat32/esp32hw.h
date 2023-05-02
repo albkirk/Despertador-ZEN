@@ -1,4 +1,11 @@
-#include <wifi.h>
+#ifndef _WIFI_WRAPPER_H
+    #define _WIFI_WRAPPER_H 
+    /* inner content only filled with stuff if we're on esp32 or esp8266 platforms.. */
+    #if defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_ESP8266)
+        #include <WiFi.h> 
+        /* other stuff */
+    #endif
+#endif
 //#include <BLEDevice.h>
 #include <rom/rtc.h>
 #include <Preferences.h>
@@ -38,7 +45,9 @@ Preferences preferences;                    // Preferences library is wrapper ar
     ADC_MODE(ADC_VCC)                       // Get voltage from Internal ADC
 #endif
 */
-#define Default_ADC_PIN 36
+#ifndef Default_ADC_PIN
+    #define Default_ADC_PIN 36
+#endif
 
 // Initialize the Webserver
 WebServer MyWebServer(80);
@@ -50,7 +59,7 @@ WiFiClient unsecuclient;                    // Use this for unsecure connection
 
 
 // Battery & ESP Voltage
-#define Batt_Max float(4.1)                 // Battery Highest voltage.  [v]
+#define Batt_Max float(4.2)                 // Battery Highest voltage.  [v]
 #define Batt_Min float(2.8)                 // Battery lowest voltage.   [v]
 #define Vcc float(3.3)                      // Theoretical/Typical ESP voltage. [v]
 #define VADC_MAX float(3.3)                 // Maximum ADC Voltage input
@@ -153,8 +162,10 @@ void esp_wifi_disconnect() {
 }
 
 void wifi_hostname() {
-    String host_name = String(config.DeviceName + String("-") + config.Location);
-    WiFi.setHostname(host_name.c_str());
+    static char my_hostname[32] = {0,};
+    String host_name = String(config.DeviceName) + String("-") + String(config.Location);
+    snprintf(my_hostname, 32, "%s", host_name);
+    WiFi.setHostname(my_hostname);
 }
 
 uint8_t wifi_waitForConnectResult(unsigned long timeout) {
@@ -164,6 +175,7 @@ uint8_t wifi_waitForConnectResult(unsigned long timeout) {
 bool RTC_read()  {return false;}
 bool RTC_write() {return true;}
 bool RTC_reset() {return true;}
+void FormatConfig() {}
 
 
 /*
@@ -285,16 +297,19 @@ float getBattLevel() {                                      // return Battery le
 #else
     float voltage = 0.0;                                    // Input Voltage [v]
     for(int i = 0; i < Number_of_measures; i++) {
-        voltage += ReadVoltage(36);
+        voltage += ReadVoltage(Default_ADC_PIN);
         delay(1);
     }
     voltage = voltage / Number_of_measures;
     voltage = (voltage * 2) + config.LDO_Corr;              // "* 2" multiplier required when using a 50K + 50K Resistor divider between VCC and ADC. 
     if (config.DEBUG) Serial.println("Averaged and Corrected Voltage: " + String(voltage));
+    /*
     if (voltage > Batt_Max ) {
         if (config.DEBUG) Serial.println("Voltage will be truncated to Batt_Max: " + String(Batt_Max));
         voltage = Batt_Max;
     }
+    */
+   
     return ((voltage - Batt_Min) / (Batt_Max - Batt_Min)) * 100.0;
 #endif
 }
@@ -363,12 +378,14 @@ void FormatConfig() {                                   // WARNING!! To be used 
 */
 
 void blink_LED(unsigned int slot, int bl_LED = LED_ESP, bool LED_OFF = config.LED) { // slot range 1 to 10 =>> 3000/300
+    /*
     if (bl_LED>=0) {
         now_millis = millis() % Pace_millis;
         if (now_millis > LED_millis*(slot-1) && now_millis < LED_millis*slot-LED_millis/2) digitalWrite(bl_LED, !LED_OFF); // Turn LED on
         now_millis = (millis()-LED_millis/3) % Pace_millis;
         if (now_millis > LED_millis*(slot-1) && now_millis < LED_millis*slot-LED_millis/2) digitalWrite(bl_LED, LED_OFF); // Turn LED on
     }
+    */
 }
 
 void flash_LED(unsigned int n_flash = 1, int fl_LED = LED_ESP, bool LED_OFF = config.LED) {
@@ -431,9 +448,9 @@ void hw_setup() {
     }
 
   // ADC setup
-    analogSetPinAttenuation(36,ADC_11db);   // ADC_11db provides an attenuation so that IN/OUT = 1 / 3.6.
+    analogSetPinAttenuation(Default_ADC_PIN,ADC_11db);   // ADC_11db provides an attenuation so that IN/OUT = 1 / 3.6.
                                             // An input of 3 volts is reduced to 0.833 volts before ADC measurement
-    adcAttachPin(36);                       // S_VP  -- GPIO36, ADC_PRE_AMP, ADC1_CH0, RTC_GPIO0
+    adcAttachPin(Default_ADC_PIN);                       // S_VP  -- GPIO36, ADC_PRE_AMP, ADC1_CH0, RTC_GPIO0
 
   // Disable BT (most of project won't use it) to save battery.
   //  esp_bt_controller_disable();

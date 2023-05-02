@@ -1,6 +1,4 @@
 //  - - -  Variables  - - -
-//bool Alarm_State = false;                   // Defined on config structure Alarm state (true -> Ring / False -> Not Ring)
-bool Last_Alarm_State = false;                // Last Alarm state
 bool Alarm_Set = false;                       // set Alarm time menu
 byte Alarm_Set_index = 0;                     // Alarm item index to set (hour, min, wday, alarm, sound,...)
 

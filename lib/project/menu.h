@@ -14,11 +14,13 @@ static const String lights[] = {"LIGHT_GREEN", "SKY_BLUE", "DEEP_BLUE", "PURPLE"
 //  - - -  Variables  - - -
 byte MENU = 0;
 byte Last_MENU = (sizeof(menu_main)/sizeof(*menu_main));
-uint32_t MENU_LastTime = 0;              // Last MENU selection time stamp
-unsigned int Backto_MENU = 120;               // Timeout to return to Main (clock) Menu
-bool Menu_Next = false;                       // Aux flag to jumo to next menu
-bool Menu_1stRun = false;                     // Aux flag to run a pice of code just once
-int delta = 0;                                // Aux var with the value to be added. Used on functions: set_alarm(),...
+int Space_MENU = 16;                            // TFT=16, EPaper=40 
+uint32_t MENU_LastTime = 0;                     // Last MENU selection time stamp
+uint32_t Display_Refresh = 1;                   // 1sec for TFT display, 60sec for ePaper
+unsigned int Backto_MENU = 120;                 // Timeout to return to Main (clock) Menu
+bool Menu_Next = false;                         // Aux flag to jumo to next menu
+bool Menu_1stRun = false;                       // Aux flag to run a pice of code just once
+int delta = 0;                                  // Aux var with the value to be added. Used on functions: set_alarm(),...
 
 byte ZEN = 0;
 byte SOUNDs = 0;
@@ -28,7 +30,7 @@ byte LIGHTs = 0;
 #include <mn_alarm.h>
 //#include <mn_zen.h>
 #include <mn_sounds.h>
-#include <mn_lights.h>
+//#include <mn_lights.h>
 #include <mn_ambient.h>
 #include <mn_shades.h>
 #include <mn_clock.h>  /// this must be the last one as it calls functions from previous libs
@@ -42,6 +44,7 @@ void menu_setup() {
 void menu_loop() {
     // MENU handling
     if (Last_MENU != MENU) {
+        display_text(menu_main[Last_MENU], BGColor, 1, Last_MENU * Space_MENU, 20);  // Clear Menu
         switch(Last_MENU) {   // actions to execute before Leaving the current menu. typically, to clean the screen...
             case 0:     // Clock
                 display_drawtime(LastDateTime, BGColor);  // Clear clock
@@ -60,8 +63,8 @@ void menu_loop() {
                 display_drawvolume(config.Volume, BGColor);
                 break;
             case 3:     // Lights
-                display_drawEFX(EFX, BGColor);
-                for (size_t i = 0; i < NEOPixelsNUM; i++) NEOcolor_set (BLACK, i);
+                //display_drawEFX(EFX, BGColor);
+                //for (size_t i = 0; i < NEOPixelsNUM; i++) NEOcolor_set (BLACK, i);
                 break;
             case 4:     // Ambient
                 display_drawambient(Last_Temperature, Last_Humidity, Last_Tempe_MIN, Last_Tempe_MAX, BGColor);
@@ -88,19 +91,18 @@ void menu_loop() {
                 display_drawvolume(config.Volume, MainColor);
                 break;
             case 3:     // Lights
-                display_drawEFX(EFX, MainColor);
-                for (size_t i = 0; i < NEOPixelsNUM; i++) NEOcolor_set (BLACK, i);
+                //display_drawEFX(EFX, MainColor);
+                //for (size_t i = 0; i < NEOPixelsNUM; i++) NEOcolor_set (BLACK, i);
                 break;
-            case 4:     // Alarm
-                refresh_ambient();
+            case 4:     // Ambient
+                //refresh_ambient();
             //case 4:     // Shades
                 //display_drawshades(SHADES, MainColor);
                 break;
         }
         //telnet_print("Last Menu: " + menu_main[Last_MENU]);
         //telnet_println("\tCurrent Menu: " + menu_main[MENU]);
-        display_text(menu_main[Last_MENU], BGColor, 1, Last_MENU * 18, 20);  // Clear Menu
-        display_text(menu_main[MENU], MainColor, 1, MENU * 18, 20);          // write Menu
+        display_text(menu_main[MENU], MainColor, 1, MENU * Space_MENU, 20);          // write Menu
         Last_MENU = MENU;
         MENU_LastTime = millis();
     }
@@ -120,14 +122,13 @@ void menu_loop() {
         case 1:     // alarm
                 loop_alarm();
                 break;
-
-        case 2:
+        case 2:     // Sound
                 loop_sounds();
                 break;
-        case 3:
-                loop_lights();
+        case 3:     // Lights
+                //loop_lights();
                 break;
-        case 4:     // alarm
+        case 4:     // Ambient
                 loop_ambient();
         //case 4:
                 //loop_shades();

@@ -49,6 +49,7 @@ void Touch_to_Stop() {
     //TL_COUNT = 0;
     //TL_STATUS = false;
     player_stop = true;
+    //TL_COUNT = 0;
   }
 }
 
@@ -158,7 +159,7 @@ void fn_task_DAC(void *parameters){
           delay(1000);
         };
       task_param.DAC_data = Buffer[buf_idx].data;
-      Num_of_samples = strlen((char*)task_param.DAC_data)-1;
+      Num_of_samples = strlen((char*)task_param.DAC_data);
       //telnet_println("buf_idx: " + String(buf_idx) + "  Num_of_samples: " + String(Num_of_samples));
       for(task_idx=0; task_idx < Num_of_samples; task_idx++) {
           if (player_stop) {
@@ -167,7 +168,7 @@ void fn_task_DAC(void *parameters){
               goto stop_DAC;
           };
           dacWrite(SPEAKER_PIN, (byte)((task_param.DAC_data[task_idx]-127)*(config.Volume/100.0)+127));
-          delayMicroseconds(delay_intv-11);   // use -12
+          delayMicroseconds(delay_intv - 46);   // use -12
       };
       Buffer[buf_idx].Buf_write_done=false;
       Buffer[buf_idx].Buf_read_done = true;
@@ -180,12 +181,12 @@ void fn_task_DAC(void *parameters){
 }
 
 void fn_task_PlayMEM(void *parameters) {
-  Serial.println("fn_task_PlayMEM running on core " + String(xPortGetCoreID()));
+  //Serial.println("fn_task_PlayMEM running on core " + String(xPortGetCoreID()));
   play_status = 4;        // It should be 2, but this little hack "4" is required to run the WHILE loop
   //telnet_println("play_status: " + String(play_status));
   player_fadein((byte)((task_param.DAC_data[0]-127)*(config.Volume/100.0)+127), task_param.sample_rate);
   for (size_t n = 0; n < task_param.repeat + 1; n++) {
-      xTaskCreate(fn_task_DAC, "task_DAC", 8192, (void *)NULL, 0, &task_DAC);
+      xTaskCreate(fn_task_DAC, "task_DAC", buf_size, (void *)NULL, 0, &task_DAC);
       while (play_status == 4) delay(25);
       if (player_stop) {
           goto stop_PlayMEM;
@@ -200,14 +201,14 @@ void fn_task_PlayMEM(void *parameters) {
 }
 
 void player_music(const uint8_t *music_data, byte rept=0, uint32_t spl_rate=22050) {
-    Serial.println("player_music running on core " + String(xPortGetCoreID()));
+    //Serial.println("player_music running on core " + String(xPortGetCoreID()));
     TL_COUNT = 0;
     player_stop = false;
     if(config.Volume != 0) {
         task_param.DAC_data = music_data;
         task_param.sample_rate=spl_rate;
         task_param.repeat=rept;
-        xTaskCreate(fn_task_PlayMEM, "task_PlayMEM", 8192, (void *)NULL, 0, &task_PlayMEM);
+        xTaskCreate(fn_task_PlayMEM, "task_PlayMEM", buf_size, (void *)NULL, 0, &task_PlayMEM);
     };
 }
 
@@ -262,7 +263,8 @@ void fn_task_PlayFile(void *parameters) {
                         goto stop_PlayFile;
                     };
                 } while (!Buffer[buf_idx].Buf_read_done);
-                if (play_status == 2) xTaskCreatePinnedToCore(fn_task_DAC, "task_DAC", 8192, (void *)NULL, 0, &task_DAC, 0);
+                // if (play_status == 2) xTaskCreate(fn_task_DAC, "task_DAC", buf_size, (void *)NULL, 0, &task_DAC);
+                if (play_status == 2) xTaskCreatePinnedToCore(fn_task_DAC, "task_DAC", buf_size, (void *)NULL, 0, &task_DAC, 0);
                 Num_of_samples -= toRead;
                 delay(50);
             };
@@ -289,8 +291,8 @@ void player_playfile(fs::FS &fs, const char * path, byte rept=0, uint32_t spl_ra
       task_param.sample_rate=spl_rate;
       task_param.repeat=rept;
       task_param.path=path;
-      //xTaskCreate(fn_task_PlayFile, "task_PlayFile", 8192, (void *)NULL, 0, &task_PlayFile);
-      xTaskCreatePinnedToCore(fn_task_PlayFile, "task_PlayFile", 8192, (void *)NULL, 1, &task_PlayFile, 1);
+      //xTaskCreate(fn_task_PlayFile, "task_PlayFile", buf_size, (void *)NULL, 0, &task_PlayFile);
+      xTaskCreatePinnedToCore(fn_task_PlayFile, "task_PlayFile", buf_size, (void *)NULL, 1, &task_PlayFile, 1);
   }
 }
 
@@ -322,8 +324,8 @@ void player_play (byte idx = 0) {
             player_beepup(60);
             break;
         case 7 :
-            player_playfile(SD, "/Cuckoo.raw", 5);
-            //player_music(Cuckoo, 5);
+            //player_playfile(SD, "/Cuckoo.raw", 5);
+            player_music(Cuckoo, 5);
             break;
         default :
             player_beep(6);

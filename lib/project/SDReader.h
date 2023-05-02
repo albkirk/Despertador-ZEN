@@ -2,10 +2,10 @@
 #include <SD.h>
 #include <FS.h>
 
-//#define MISO_PIN 2                        // Defined in project/def_conf.h
-//#define MOSI_PIN 15                       // Defined in project/def_conf.h
-//#define CLK_PIN 14                        // Defined in project/def_conf.h
-//#define CS_PIN 13                         // Defined in project/def_conf.h
+#define SD_MISO_PIN 2                        // TTGO TS = 2
+#define SD_MOSI_PIN 15                       // TTGO TS = 15
+#define SD_CLK_PIN 14                        // TTGO TS = 14
+#define SD_CS_PIN 13                         // TTGO TS = 13
 
 void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
     Serial.printf("Listing directory: %s\n", dirname);
@@ -165,8 +165,8 @@ void testFileIO(fs::FS &fs, const char * path){
 }
 
 void SDReader_setup(){
-    SPI.begin(CLK_PIN, MISO_PIN, MOSI_PIN, CS_PIN);
-    if(!SD.begin(CS_PIN)) {
+    SPI.begin(SD_CLK_PIN, SD_MISO_PIN, SD_MOSI_PIN, SD_CS_PIN);
+    if(!SD.begin(SD_CS_PIN)) {
         Serial.println("Card Mount Failed");
         return;
     }
